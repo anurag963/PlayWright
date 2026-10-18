@@ -1,0 +1,18 @@
+[
+    {
+        "email": "user1@test.com",
+        "password": "password1",
+        "validity": "valid"
+    },
+    {
+        "email": "user2@test.com",
+        "password": "password2",
+        "validity": "valid"
+    },
+    {
+        "email": "user3@test.com",
+        "password": "password3",
+        "validity": "invalid"
+    }
+
+]
