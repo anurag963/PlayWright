@@ -1,4 +1,5 @@
 import { defineConfig, devices } from '@playwright/test';
+import { allureReporter, frameworkProject } from './tests/Framework/playwright.config';
 
 /**
  * Read environment variables from file.
@@ -22,7 +23,7 @@ export default defineConfig({
   /* Opt out of parallel tests on CI. */
   workers: process.env.CI ? 1 : undefined,
   /* Reporter to use. See https://playwright.dev/docs/test-reporters */
-  reporter: 'html',
+  reporter: [['html'], allureReporter],
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
   use: {
     /* Base URL to use in actions like `await page.goto('')`. */
@@ -36,8 +37,12 @@ export default defineConfig({
   projects: [
     {
       name: 'chromium',
+      /* Learning tests; the POM framework runs in its own project below. */
+      testIgnore: ['**/Framework/**', '**/CucumberFramework/**'],
       use: { ...devices['Desktop Chrome'] },
     },
+    /* POM framework (tests/Framework) with its baseURL, timeouts and retries. */
+    frameworkProject,
 
 /*     {
       name: 'firefox',

@@ -6,3 +6,12 @@ node_modules/
 /blob-report/
 /playwright/.cache/
 /playwright/.auth/
+
+# Secrets
+.env
+/allure-results/
+/allure-report/
+/allure-results-cucumber/
+/allure-report-cucumber/
+/cucumber-report/
+.features-gen/
