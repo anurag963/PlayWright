@@ -1,0 +1,606 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif}img{max-width:100%}[hidden]{display:none!important}</style>
+</head>
+<body>
+<title>Automation Exercise Hybrid Framework</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700&family=Instrument+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: sibling of the POM, Cucumber and API guides. Sticky contents rail left, one reading column; UI / API layer chips and direction tags (API → UI, UI → API, API = UI) are this page's signature detail. */
+:root {
+  --bg: #f6f6f9;
+  --surface: #ffffff;
+  --fg: #1b1d2a;
+  --muted: #5a5d72;
+  --line: #dcdde8;
+  --accent: #4b4fb3;       /* hybrid indigo, between the UI guide's green and the API guide's teal */
+  --accent-soft: #e6e7f7;
+  --ui: #1f7a52;   --ui-soft: #e2f1e8;   /* same green as the POM guide */
+  --api: #1d6f86;  --api-soft: #e0eff3;  /* same teal as the API guide */
+  --warn: #9a5b00; --warn-soft: #fbefd9;
+  --str: #6b5a12;
+  --code-bg: #eeeff5;
+  --font-display: "Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  --font-body: "Instrument Sans", "Segoe UI", system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #111219; --surface: #181a24; --fg: #e5e6f0; --muted: #9c9fb5; --line: #2c2e3d;
+    --accent: #a3a7f5; --accent-soft: #24264a;
+    --ui: #5cc893; --ui-soft: #1a3326; --api: #6cc4dc; --api-soft: #18323a;
+    --warn: #f0b456; --warn-soft: #362a14; --str: #e2cf7a; --code-bg: #1e2030;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #111219; --surface: #181a24; --fg: #e5e6f0; --muted: #9c9fb5; --line: #2c2e3d;
+  --accent: #a3a7f5; --accent-soft: #24264a;
+  --ui: #5cc893; --ui-soft: #1a3326; --api: #6cc4dc; --api-soft: #18323a;
+  --warn: #f0b456; --warn-soft: #362a14; --str: #e2cf7a; --code-bg: #1e2030;
+  color-scheme: dark;
+}
+
+body {
+  background: var(--bg); color: var(--fg);
+  font: 16px/1.6 var(--font-body);
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+.shell { max-width: 1120px; margin: 0 auto; display: grid; grid-template-columns: 210px minmax(0, 1fr); gap: 48px; padding-block: 48px 80px; }
+@media (max-width: 860px) { .shell { grid-template-columns: minmax(0, 1fr); gap: 24px; padding-block: 28px 56px; } .toc { display: none; } }
+
+.toc { position: sticky; top: calc(env(safe-area-inset-top, 0px) + 24px); align-self: start; font-size: 14px; }
+.toc p { font: 600 11px/1 var(--font-body); letter-spacing: .08em; text-transform: uppercase; color: var(--muted); margin: 0 0 12px; }
+.toc ol { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
+.toc a { color: var(--muted); text-decoration: none; }
+.toc a:hover, .toc a:focus-visible { color: var(--accent); }
+
+main { min-width: 0; max-width: 760px; }
+header.top { display: grid; gap: 12px; margin-bottom: 40px; }
+.eyebrow { font: 500 13px/1 var(--font-mono); color: var(--accent); }
+h1 { font: 700 clamp(30px, 5vw, 44px)/1.1 var(--font-display); margin: 0; text-wrap: balance; letter-spacing: -.01em; }
+.lede { color: var(--muted); margin: 0; font-size: 18px; max-width: 62ch; }
+.stats { display: flex; flex-wrap: wrap; gap: 8px 20px; margin-top: 8px; font: 500 13px/1.4 var(--font-mono); color: var(--muted); }
+.stats b { color: var(--fg); font-weight: 500; }
+
+section { padding-block: 32px; border-top: 1px solid var(--line); scroll-margin-top: 16px; }
+h2 { font: 600 26px/1.2 var(--font-display); margin: 0 0 12px; text-wrap: balance; }
+h3 { font: 600 17px/1.3 var(--font-body); margin: 28px 0 8px; }
+p { margin: 0 0 14px; max-width: 68ch; }
+ul { margin: 0 0 14px; padding-left: 22px; display: grid; gap: 4px; }
+a { color: var(--accent); }
+code { font: 0.86em var(--font-mono); background: var(--code-bg); padding: 1px 5px; border-radius: 4px; overflow-wrap: anywhere; }
+pre.code { font: 13px/1.6 var(--font-mono); background: var(--code-bg); padding: 16px 18px; border-radius: 8px; overflow-x: auto; margin: 0 0 16px; }
+pre.code code { background: none; padding: 0; font-size: inherit; overflow-wrap: normal; }
+.c { color: var(--muted); }
+.st { color: var(--str); }
+.k-ui { color: var(--ui); font-weight: 500; }
+.k-api { color: var(--api); font-weight: 500; }
+
+.diagram { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 20px; overflow-x: auto; margin: 4px 0 16px; }
+.diagram pre.mermaid { margin: 0; background: none; display: flex; justify-content: center; min-width: 560px; }
+.caption { font-size: 14px; color: var(--muted); margin-top: -6px; }
+
+.table-wrap { overflow-x: auto; margin: 4px 0 16px; border: 1px solid var(--line); border-radius: 10px; background: var(--surface); }
+table { border-collapse: collapse; width: 100%; font-size: 14px; }
+th, td { text-align: left; padding: 9px 12px; border-bottom: 1px solid var(--line); vertical-align: top; }
+th { font: 600 11px/1.3 var(--font-body); letter-spacing: .07em; text-transform: uppercase; color: var(--muted); background: var(--bg); }
+tr:last-child td { border-bottom: none; }
+td.tc, td.path { font: 13px var(--font-mono); white-space: nowrap; }
+tr.group td { background: var(--bg); font: 600 12px/1.3 var(--font-body); letter-spacing: .04em; color: var(--fg); }
+
+.chip { display: inline-block; font: 500 12px/1 var(--font-mono); padding: 4px 7px; border-radius: 999px; white-space: nowrap; }
+.chip.ui { background: var(--ui-soft); color: var(--ui); }
+.chip.api { background: var(--api-soft); color: var(--api); }
+.chip.both { background: var(--accent-soft); color: var(--accent); }
+.chip.env { background: var(--warn-soft); color: var(--warn); }
+
+/* Direction tag: two layer halves joined by an operator */
+.dir { display: inline-flex; align-items: center; gap: 4px; font: 500 12px/1 var(--font-mono); white-space: nowrap; }
+.dir i { font-style: normal; padding: 4px 6px; border-radius: 4px; }
+.dir i.u { background: var(--ui-soft); color: var(--ui); }
+.dir i.a { background: var(--api-soft); color: var(--api); }
+.dir b { font-weight: 500; color: var(--muted); }
+
+.users { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin: 8px 0 16px; }
+@media (max-width: 640px) { .users { grid-template-columns: minmax(0, 1fr); } }
+.user { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 16px; display: grid; gap: 8px; align-content: start; }
+.user p { margin: 0; font-size: 14px; }
+.user .who { font-size: 13px; color: var(--muted); }
+
+.pair { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 12px; margin-bottom: 16px; }
+.pair > div { min-width: 0; }
+.pair .label { font: 600 11px/1 var(--font-body); letter-spacing: .07em; text-transform: uppercase; color: var(--muted); margin: 0 0 8px; }
+.pair pre.code { margin: 0; height: 100%; box-sizing: border-box; }
+@media (max-width: 700px) { .pair { grid-template-columns: minmax(0, 1fr); } }
+
+.decisions { display: grid; gap: 14px; margin: 8px 0 0; padding: 0; list-style: none; }
+.decisions li { display: grid; gap: 4px; padding-left: 14px; border-left: 2px solid var(--line); }
+.decisions strong { font-weight: 600; }
+.decisions span { color: var(--muted); font-size: 15px; }
+
+.note { background: var(--accent-soft); border-radius: 8px; padding: 12px 14px; margin: 0 0 16px; font-size: 15px; max-width: 68ch; }
+.note p { margin: 0; }
+
+ol.steps { padding-left: 22px; margin: 0 0 16px; display: grid; gap: 6px; }
+@media (prefers-reduced-motion: no-preference) { html { scroll-behavior: smooth; } }
+a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 2px; }
+</style>
+
+<div class="shell">
+  <nav class="toc" aria-label="Contents">
+    <p>Contents</p>
+    <ol>
+      <li><a href="#overview">Overview</a></li>
+      <li><a href="#architecture">Architecture</a></li>
+      <li><a href="#session">One shared session</a></li>
+      <li><a href="#lifecycle">Test lifecycle</a></li>
+      <li><a href="#directions">Three test patterns</a></li>
+      <li><a href="#folders">Folder map</a></li>
+      <li><a href="#fixtures">Fixtures</a></li>
+      <li><a href="#walkthrough">Code walkthrough</a></li>
+      <li><a href="#users">Test users</a></li>
+      <li><a href="#coverage">Test catalogue</a></li>
+      <li><a href="#layer">Choosing a layer</a></li>
+      <li><a href="#decisions">Design decisions</a></li>
+      <li><a href="#extend">Adding tests</a></li>
+      <li><a href="#run">Running &amp; reports</a></li>
+      <li><a href="#compare">vs other frameworks</a></li>
+    </ol>
+  </nav>
+
+  <main>
+    <header class="top">
+      <span class="eyebrow">tests/HybridFramework</span>
+      <h1>Automation Exercise Hybrid Framework</h1>
+      <p class="lede">UI and API testing in one framework for automationexercise.com. A test can set up state over HTTP, act in the browser and check the result in either layer, all in the same session.</p>
+      <div class="stats"><span><b>22</b> tests</span><span><b>4</b> spec files</span><span><b>9</b> page objects</span><span><b>6</b> API clients</span><span><b>1</b> shared session</span><span><b>~45 s</b> full run</span></div>
+    </header>
+
+    <section id="overview">
+      <h2>Overview</h2>
+      <p>The POM framework tests what a user sees. The API framework tests what the server does. Neither can check that the two agree: that the product the API lists is the one the page shows, or that a form filled in the browser saved what the API returns. The hybrid framework puts both layers in one test.</p>
+      <ul>
+        <li><strong>UI layer:</strong> the page objects and components from <code>tests/Framework</code>, unchanged apart from two read-out methods on <code>ProductsPage</code>.</li>
+        <li><strong>API layer:</strong> the REST and storefront clients from <code>tests/ApiFramework</code>.</li>
+        <li><strong>One session:</strong> the API clients run on the browser tab's own request context, so cookies, cart and login are shared.</li>
+        <li><strong>One fixture file</strong> that hands a test both page objects and API clients, plus the test users.</li>
+      </ul>
+      <div class="note"><p>The site's API has no endpoint for creating products; the catalogue is fixed. "Add a product via API" therefore means adding it <strong>to the cart</strong> over HTTP and checking it in the browser (HY1).</p></div>
+    </section>
+
+    <section id="architecture">
+      <h2>Architecture</h2>
+      <p>Specs use both layers through fixtures. Below the fixtures, the UI and API layers stay separate; they meet only in the browser context they share.</p>
+      <div class="diagram">
+<pre class="mermaid">
+flowchart TB
+  subgraph L1["Test layer"]
+    SPECS["specs/*.hybrid.spec.ts<br/>cart · products · account · checkout"]
+  end
+  subgraph L2["Glue layer"]
+    FIX["fixtures/hybridFixtures.ts<br/>page objects · API clients · users · toHaveResponseCode"]
+    FLOWS["utils/flows.ts<br/>registerUserViaUi · loginViaApi · expectAddressMatches"]
+  end
+  subgraph UI["UI layer"]
+    PAGES["pages/ + components/<br/>locators + actions"]
+  end
+  subgraph API["API layer"]
+    REST["clients/api/<br/>ProductsApi · BrandsApi · AccountApi"]
+    WEB["clients/web/<br/>AuthClient · CartClient · CheckoutClient"]
+    CORE["core/<br/>BaseClient · RestClient · WebClient"]
+  end
+  subgraph CTX["Browser context (one per test)"]
+    TAB["page<br/>browser tab"]
+    REQ["page.request<br/>HTTP client"]
+    JAR[("cookie jar<br/>session, cart")]
+  end
+  SITE[("automationexercise.com")]
+
+  SPECS --> FIX
+  SPECS --> FLOWS
+  FIX --> PAGES
+  FIX --> REST
+  FIX --> WEB
+  FLOWS --> PAGES
+  FLOWS --> WEB
+  REST --> CORE
+  WEB --> CORE
+  PAGES --> TAB
+  CORE --> REQ
+  TAB --- JAR
+  REQ --- JAR
+  TAB --> SITE
+  REQ --> SITE
+</pre>
+      </div>
+      <p class="caption">Arrows mean "uses". The two plain lines into the cookie jar are what makes this hybrid: the tab and the HTTP client read and write the same cookies.</p>
+    </section>
+
+    <section id="session">
+      <h2>One shared session</h2>
+      <p>Playwright gives every browser context its own request client, <code>page.request</code>. Unlike the standalone <code>request</code> fixture, it shares the context's cookie storage. Every API client in this framework is built on it:</p>
+<pre class="code"><code><span class="c">// fixtures/hybridFixtures.ts</span>
+apiCart: async ({ page }, use) =&gt; use(new CartClient(page.request)),
+apiAuth: async ({ page }, use) =&gt; use(new AuthClient(page.request)),</code></pre>
+      <p>The site keeps the cart and the login in the session cookie, so whatever one layer changes, the other sees on its next request:</p>
+      <div class="diagram">
+<pre class="mermaid">
+sequenceDiagram
+  autonumber
+  participant T as Test
+  participant API as apiCart (page.request)
+  participant J as Cookie jar
+  participant S as Site
+  participant B as Browser tab
+
+  T->>API: add(1, 3)
+  API->>S: GET /add_to_cart/1?quantity=3
+  S-->>API: Added To Cart, Set-Cookie sessionid
+  API->>J: store sessionid
+  T->>B: cartPage.open()
+  B->>J: read sessionid
+  B->>S: GET /view_cart (same session)
+  S-->>B: cart with product 1 x 3
+  T->>B: expect row for product 1, quantity 3
+</pre>
+      </div>
+      <p class="caption">HY1 in miniature. The same mechanism works the other way: a click in the UI updates the session, and <code>apiCart.view()</code> sees it (HY2, HY3).</p>
+      <p>The public <code>/api/*</code> endpoints don't use the session, so <code>productsApi</code> and <code>accountApi</code> behave the same on this client as on any other.</p>
+    </section>
+
+    <section id="lifecycle">
+      <h2>Test lifecycle</h2>
+      <p>HY18 shows all three phases: arrange over HTTP, act in the browser, assert in both. Fixtures are created lazily, only the ones the test names.</p>
+      <div class="diagram">
+<pre class="mermaid">
+sequenceDiagram
+  autonumber
+  participant CLI as npx playwright test
+  participant GS as global-setup
+  participant FX as fixtures
+  participant T as HY18 spec
+  participant API as API clients
+  participant UI as Page objects
+  participant S as Website + API
+  participant REP as Reporters
+
+  CLI->>GS: run once
+  GS->>S: POST /api/verifyLogin (.env user)
+  CLI->>FX: start test
+  FX->>FX: browser tab, block ads, Allure labels
+  FX->>S: apiUser: POST /api/createAccount
+  FX->>T: inject productsApi, apiAuth, apiCart, cartPage, checkoutPage, paymentPage, apiUser
+  Note over T,API: Arrange via API
+  T->>API: productsApi.getAllProducts()
+  T->>API: loginViaApi(apiAuth, apiUser)
+  API->>S: POST /login (session cookie now shared)
+  T->>API: apiCart.add(first, 2), apiCart.add(second)
+  Note over T,UI: Act in the UI
+  T->>UI: cartPage.open(), proceedToCheckout()
+  T->>UI: placeOrder(), payAndConfirm(card)
+  UI->>S: browser clicks, same session
+  T->>UI: downloadInvoice()
+  Note over T,API: Assert in both
+  T->>T: invoice total = API prices x quantities
+  T->>API: apiCart.view()
+  T->>T: expect cart empty
+  T-->>FX: test finished
+  FX->>S: apiUser teardown: DELETE /api/deleteAccount
+  FX-->>REP: UI steps + HTTP steps, screenshot / video / trace on failure
+</pre>
+      </div>
+    </section>
+
+    <section id="directions">
+      <h2>Three test patterns</h2>
+      <p>Every hybrid test falls into one of three shapes, marked in the test catalogue below:</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Pattern</th><th>Shape</th><th>Example</th></tr></thead>
+          <tbody>
+            <tr><td><span class="dir"><i class="a">API</i><b>→</b><i class="u">UI</i></span></td><td>Change state over HTTP, check the browser shows it.</td><td>HY1: cart filled via API, UI cart page shows those rows.</td></tr>
+            <tr><td><span class="dir"><i class="u">UI</i><b>→</b><i class="a">API</i></span></td><td>Act in the browser, check the server stored it.</td><td>HY13: register in the UI, API returns every field entered.</td></tr>
+            <tr><td><span class="dir"><i class="a">API</i><b>=</b><i class="u">UI</i></span></td><td>Read the same data from both layers and compare.</td><td>HY6: the products page lists exactly the API's 34 products, in order.</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="diagram">
+<pre class="mermaid">
+flowchart LR
+  subgraph P1["API to UI"]
+    A1["API: change state"] --> A2["UI: open page"] --> A3["UI: assert"]
+  end
+  subgraph P2["UI to API"]
+    B1["UI: act"] --> B2["API: read state"] --> B3["API: assert"]
+  end
+  subgraph P3["API equals UI"]
+    C1["API: read data"] --> C3["compare"]
+    C2["UI: read page"] --> C3
+  end
+</pre>
+      </div>
+    </section>
+
+    <section id="folders">
+      <h2>Folder map</h2>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Path</th><th>Layer</th><th>Responsibility</th></tr></thead>
+          <tbody>
+            <tr><td class="path">playwright.config.ts</td><td><span class="chip both">both</span></td><td>Exports <code>hybridProject</code>: Desktop Chrome, base URL from <code>.env</code>, timeouts, retries, screenshot/video/trace on failure. List, HTML and Allure reporters.</td></tr>
+            <tr><td class="path">global-setup.ts</td><td><span class="chip api">API</span></td><td>Checks the <code>.env</code> login once with <code>/api/verifyLogin</code> before any test runs.</td></tr>
+            <tr><td class="path">pages/, components/</td><td><span class="chip ui">UI</span></td><td>Page objects from the POM framework. <code>ProductsPage</code> adds <code>getListedProducts()</code> and <code>getSidebarBrands()</code>.</td></tr>
+            <tr><td class="path">clients/api/</td><td><span class="chip api">API</span></td><td><code>ProductsApi</code>, <code>BrandsApi</code>, <code>AccountApi</code> for <code>/api/*</code>.</td></tr>
+            <tr><td class="path">clients/web/</td><td><span class="chip api">API</span></td><td><code>AuthClient</code>, <code>CartClient</code>, <code>CheckoutClient</code>, <code>SiteClient</code> for the storefront's HTTP endpoints.</td></tr>
+            <tr><td class="path">core/</td><td><span class="chip api">API</span></td><td><code>BaseClient</code> (Allure steps, masking), <code>RestClient</code>, <code>WebClient</code> (CSRF forms).</td></tr>
+            <tr><td class="path">models/</td><td><span class="chip api">API</span></td><td>Response types and contract schemas.</td></tr>
+            <tr><td class="path">fixtures/hybridFixtures.ts</td><td><span class="chip both">both</span></td><td>Page objects and API clients on one session, test users, ad blocking, <code>toHaveResponseCode</code>.</td></tr>
+            <tr><td class="path">utils/flows.ts</td><td><span class="chip both">both</span></td><td>UI flows from the POM framework plus <code>loginViaApi()</code>.</td></tr>
+            <tr><td class="path">utils/</td><td><span class="chip both">both</span></td><td><code>env.ts</code>, <code>dataFactory.ts</code> (shared test data), <code>htmlParser.ts</code>.</td></tr>
+            <tr><td class="path">specs/</td><td><span class="chip both">both</span></td><td><code>cart</code>, <code>products</code>, <code>account</code>, <code>checkout</code> hybrid specs.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section id="fixtures">
+      <h2>Fixtures</h2>
+      <p>A test names what it needs from either layer. API clients are prefixed <code>api</code> where a page object covers the same area, so <code>cartPage</code> and <code>apiCart</code> read clearly side by side.</p>
+      <div class="diagram">
+<pre class="mermaid">
+flowchart LR
+  PAGE["page<br/>(ads blocked)"]
+  subgraph UI["UI fixtures"]
+    HP["homePage"]
+    LP["loginPage · signupPage<br/>accountStatusPage"]
+    PP["productsPage<br/>productDetailsPage"]
+    CP["cartPage · checkoutPage<br/>paymentPage"]
+  end
+  subgraph API["API fixtures, on page.request"]
+    RA["productsApi · brandsApi<br/>accountApi"]
+    SA["apiAuth · apiCart<br/>apiCheckout"]
+  end
+  subgraph U["Users"]
+    EU["envUser"]
+    AU["apiUser"]
+    NU["newUser"]
+  end
+  PAGE --> HP
+  PAGE --> LP
+  PAGE --> PP
+  PAGE --> CP
+  PAGE --> RA
+  PAGE --> SA
+  RA --> AU
+  RA --> NU
+</pre>
+      </div>
+      <p class="caption">Everything hangs off <code>page</code>, so every hybrid test gets a browser. <code>apiUser</code> and <code>newUser</code> use <code>accountApi</code> for setup and cleanup.</p>
+    </section>
+
+    <section id="walkthrough">
+      <h2>Code walkthrough</h2>
+      <h3>1. Arrange over HTTP, assert in the browser (HY1)</h3>
+<pre class="code"><code>test('HY1: Products added via API appear in the UI cart', async ({
+  <span class="k-api">productsApi, apiCart</span>, <span class="k-ui">cartPage</span>,
+}) =&gt; {
+  const [first, second] = (await <span class="k-api">productsApi</span>.getAllProducts()).body.products;
+  await <span class="k-api">apiCart</span>.add(first.id, 3);
+  await <span class="k-api">apiCart</span>.add(second.id);
+
+  await <span class="k-ui">cartPage</span>.open();
+  expect(await <span class="k-ui">cartPage</span>.getRows()).toEqual([
+    { name: first.name, price: first.price, quantity: <span class="st">'3'</span>, total: <span class="st">`Rs. ${...}`</span> },
+    { name: second.name, price: second.price, quantity: <span class="st">'1'</span>, total: second.price },
+  ]);
+});</code></pre>
+      <h3>2. Act in the browser, check the server (HY13)</h3>
+<pre class="code"><code>await <span class="k-ui">homePage</span>.header.goToSignupLogin();
+await registerUserViaUi(<span class="k-ui">loginPage, signupPage, accountStatusPage</span>, newUser);
+
+expect(await <span class="k-api">accountApi</span>.verifyLogin(newUser)).toHaveResponseCode(200, <span class="st">'User exists!'</span>);
+const { body } = await <span class="k-api">accountApi</span>.getUserDetailByEmail(newUser.email);
+expect(body.user).toMatchObject({ first_name: newUser.firstName, city: newUser.city, ... });</code></pre>
+      <h3>3. Compare both layers (HY6)</h3>
+      <p><code>getListedProducts()</code> reads every card's id, name and price in one call, so the comparison is a single <code>toEqual</code>:</p>
+<pre class="code"><code>const { products } = (await <span class="k-api">productsApi</span>.getAllProducts()).body;
+await <span class="k-ui">homePage</span>.header.goToProducts();
+
+expect(await <span class="k-ui">productsPage</span>.getListedProducts())
+  .toEqual(products.map(({ id, name, price }) =&gt; ({ id, name, price })));</code></pre>
+      <h3>4. Skip the login form</h3>
+      <p><code>loginViaApi()</code> posts the <code>/login</code> form over HTTP. The browser picks up the session on its next page load:</p>
+<pre class="code"><code>export async function loginViaApi(apiAuth: AuthClient, user) {
+  const res = await apiAuth.login(user.email, user.password);
+  expect(res.loggedInAs).toBe(user.name);
+}</code></pre>
+    </section>
+
+    <section id="users">
+      <h2>Test users</h2>
+      <div class="users">
+        <div class="user">
+          <span class="chip env">envUser</span>
+          <p>Your account from <code>.env</code>. Shared by all runs and <strong>never deleted</strong>. Only global setup uses it here.</p>
+        </div>
+        <div class="user">
+          <span class="chip api">apiUser</span>
+          <p>Created through <code>/api/createAccount</code> before the test, deleted after it.</p>
+          <p class="who">HY5, HY12, HY14–HY20</p>
+        </div>
+        <div class="user">
+          <span class="chip ui">newUser</span>
+          <p>Unique data only; the test registers it through the UI. Deleted via API afterwards.</p>
+          <p class="who">HY13</p>
+        </div>
+      </div>
+      <p>Test data keeps the birth month as the UI dropdown shows it (<code>"March"</code>). <code>AccountApi</code> converts it to the <code>"3"</code> the API expects, so one user object works in both layers.</p>
+    </section>
+
+    <section id="coverage">
+      <h2>Test catalogue</h2>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>ID</th><th>Test</th><th>Pattern</th><th>Spec</th></tr></thead>
+          <tbody>
+            <tr class="group"><td colspan="4">Cart</td></tr>
+            <tr><td class="tc">HY1</td><td>Products added via API appear in the UI cart with API names, prices, quantities and totals</td><td><span class="dir"><i class="a">API</i><b>→</b><i class="u">UI</i></span></td><td class="path">cart</td></tr>
+            <tr><td class="tc">HY2</td><td>Product added in the UI is in the API cart</td><td><span class="dir"><i class="u">UI</i><b>→</b><i class="a">API</i></span></td><td class="path">cart</td></tr>
+            <tr><td class="tc">HY3</td><td>Product removed in the UI is gone from the API cart</td><td><span class="dir"><i class="u">UI</i><b>→</b><i class="a">API</i></span></td><td class="path">cart</td></tr>
+            <tr><td class="tc">HY4</td><td>Quantity set on the UI details page matches the API cart</td><td><span class="dir"><i class="u">UI</i><b>→</b><i class="a">API</i></span></td><td class="path">cart</td></tr>
+            <tr><td class="tc">HY5</td><td>Guest cart built via API is kept after logging in on the UI</td><td><span class="dir"><i class="a">API</i><b>→</b><i class="u">UI</i></span></td><td class="path">cart</td></tr>
+            <tr class="group"><td colspan="4">Products</td></tr>
+            <tr><td class="tc">HY6</td><td>UI products page lists exactly the API products: id, name, price, order</td><td><span class="dir"><i class="a">API</i><b>=</b><i class="u">UI</i></span></td><td class="path">products</td></tr>
+            <tr><td class="tc">HY7 ×3</td><td>UI search returns the API search results, for "Jeans", "Saree" and "Top"</td><td><span class="dir"><i class="a">API</i><b>=</b><i class="u">UI</i></span></td><td class="path">products</td></tr>
+            <tr><td class="tc">HY8</td><td>Product details pages show the API's name, price, category and brand</td><td><span class="dir"><i class="a">API</i><b>=</b><i class="u">UI</i></span></td><td class="path">products</td></tr>
+            <tr><td class="tc">HY9</td><td>Brands sidebar lists exactly the API brands</td><td><span class="dir"><i class="a">API</i><b>=</b><i class="u">UI</i></span></td><td class="path">products</td></tr>
+            <tr><td class="tc">HY10</td><td>Polo brand page lists the API's Polo products</td><td><span class="dir"><i class="a">API</i><b>=</b><i class="u">UI</i></span></td><td class="path">products</td></tr>
+            <tr><td class="tc">HY11</td><td>Women › Tops category page lists the API's Women › Tops products</td><td><span class="dir"><i class="a">API</i><b>=</b><i class="u">UI</i></span></td><td class="path">products</td></tr>
+            <tr class="group"><td colspan="4">Account</td></tr>
+            <tr><td class="tc">HY12</td><td>User created via API can log in on the UI</td><td><span class="dir"><i class="a">API</i><b>→</b><i class="u">UI</i></span></td><td class="path">account</td></tr>
+            <tr><td class="tc">HY13</td><td>User registered in the UI exists in the API with every entered detail</td><td><span class="dir"><i class="u">UI</i><b>→</b><i class="a">API</i></span></td><td class="path">account</td></tr>
+            <tr><td class="tc">HY14</td><td>Account deleted in the UI is gone from the API</td><td><span class="dir"><i class="u">UI</i><b>→</b><i class="a">API</i></span></td><td class="path">account</td></tr>
+            <tr><td class="tc">HY15</td><td>Logging in via API logs the browser in, no login form</td><td><span class="dir"><i class="a">API</i><b>→</b><i class="u">UI</i></span></td><td class="path">account</td></tr>
+            <tr><td class="tc">HY16</td><td>Logging out in the UI ends the API session</td><td><span class="dir"><i class="u">UI</i><b>→</b><i class="a">API</i></span></td><td class="path">account</td></tr>
+            <tr><td class="tc">HY17</td><td>Address updated via API shows on the UI checkout page</td><td><span class="dir"><i class="a">API</i><b>→</b><i class="u">UI</i></span></td><td class="path">account</td></tr>
+            <tr class="group"><td colspan="4">Checkout</td></tr>
+            <tr><td class="tc">HY18</td><td>Cart and login via API, order placed in the UI; invoice has the API-calculated total and the API cart is empty</td><td><span class="dir"><i class="a">API</i><b>→</b><i class="u">UI</i><b>→</b><i class="a">API</i></span></td><td class="path">checkout</td></tr>
+            <tr><td class="tc">HY19</td><td>Order paid via API leaves the UI cart empty</td><td><span class="dir"><i class="a">API</i><b>→</b><i class="u">UI</i></span></td><td class="path">checkout</td></tr>
+            <tr><td class="tc">HY20</td><td>UI checkout review lists the products put in the cart via API, with their prices</td><td><span class="dir"><i class="a">API</i><b>→</b><i class="u">UI</i></span></td><td class="path">checkout</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>Last two runs, 25 and 26 Oct 2026: 22 passed, 0 failed, retries off, about 45 seconds each.</p>
+    </section>
+
+    <section id="layer">
+      <h2>Choosing a layer</h2>
+      <p>For each step of a test, use the layer that is fastest for setup and closest to the truth for checks:</p>
+      <div class="diagram">
+<pre class="mermaid">
+flowchart TB
+  Q{"What is this step for?"}
+  Q -- "setup the test doesn't verify<br/>(user, cart, login)" --> S["API<br/>fast, no flaky clicks"]
+  Q -- "the behaviour under test" --> B{"Where does the user do it?"}
+  B -- "in the browser" --> BU["UI"]
+  B -- "through an integration" --> BA["API"]
+  Q -- "checking a result" --> V{"Where is the truth?"}
+  V -- "what the server stored" --> VA["API<br/>HY13, HY14"]
+  V -- "what the user sees" --> VU["UI<br/>HY1, HY17"]
+  V -- "both must agree" --> VB["read both, compare<br/>HY6 to HY11"]
+</pre>
+      </div>
+    </section>
+
+    <section id="decisions">
+      <h2>Design decisions</h2>
+      <ul class="decisions">
+        <li><strong>API clients use <code>page.request</code>, not the <code>request</code> fixture.</strong><span>The standalone fixture has its own cookie jar, so a cart filled there would never reach the browser. <code>page.request</code> belongs to the browser context and shares its cookies.</span></li>
+        <li><strong>One test-data shape for both layers.</strong><span>The UI dropdown needs "March", the API needs "3". Test data keeps the UI form and <code>AccountApi</code> converts, so one <code>UserData</code> object registers through either layer and is compared in both.</span></li>
+        <li><strong>Read-outs on the page object, not in specs.</strong><span><code>getListedProducts()</code> and <code>getSidebarBrands()</code> live in <code>ProductsPage</code> and return plain data, so comparisons with the API are one <code>toEqual</code> and selectors stay out of specs.</span></li>
+        <li><strong>Polling where the UI writes asynchronously.</strong><span>"Add to cart" in the UI fires an AJAX request. HY2 uses <code>expect.poll</code> on the API cart so it waits for that request to land.</span></li>
+        <li><strong>Ads are blocked for the tab only.</strong><span>The route that aborts ad requests applies to the browser. HTTP calls on <code>page.request</code> never load ads, so they need nothing.</span></li>
+        <li><strong>Own copy of both layers.</strong><span>Like the other frameworks in this repo, the folder is self-contained. A fix to a page object or client must be copied to the framework it came from.</span></li>
+      </ul>
+    </section>
+
+    <section id="extend">
+      <h2>Adding tests</h2>
+      <ol class="steps">
+        <li>Pick the pattern: API → UI, UI → API, or API = UI.</li>
+        <li>Open the matching spec in <code>specs/</code> and import <code>test</code> and <code>expect</code> from <code>../fixtures/hybridFixtures</code>.</li>
+        <li>Name the page objects, API clients and user you need. Use <code>loginViaApi()</code> when login is setup rather than the thing under test.</li>
+        <li>When the UI must be read as data, add a read-out method to the page object that returns plain values.</li>
+        <li>Give it the next <code>HYxx</code> id so Allure tags it.</li>
+      </ol>
+<pre class="code"><code>test('HY21: Product removed via API disappears from the UI cart', async ({ <span class="k-api">apiCart</span>, <span class="k-ui">cartPage</span> }) =&gt; {
+  await <span class="k-api">apiCart</span>.add(1);
+  await <span class="k-ui">cartPage</span>.open();
+  await expect(<span class="k-ui">cartPage</span>.rowByProductId(1)).toBeVisible();
+
+  await <span class="k-api">apiCart</span>.remove(1);
+  await <span class="k-ui">cartPage</span>.open();
+  await expect(<span class="k-ui">cartPage</span>.emptyCartMessage).toBeVisible();
+});</code></pre>
+    </section>
+
+    <section id="run">
+      <h2>Running &amp; reports</h2>
+<pre class="code"><code>npm run test:hybrid                 <span class="c"># headless, all tests</span>
+npm run test:hybrid:headed          <span class="c"># watch the browser</span>
+npx playwright test -c tests/HybridFramework -g "HY18"   <span class="c"># one test</span>
+
+npm run report:hybrid               <span class="c"># Playwright HTML report</span>
+npm run test:hybrid:allure          <span class="c"># clean, run, build and open Allure</span>
+npm run allure:hybrid               <span class="c"># build and open Allure from last results</span>
+npm run allure:hybrid:generate      <span class="c"># only build allure-report-hybrid/ (CI)</span></code></pre>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Reporter</th><th>Output</th><th>Use it for</th></tr></thead>
+          <tbody>
+            <tr><td>list</td><td>terminal</td><td>Live progress</td></tr>
+            <tr><td>HTML</td><td class="path">playwright-report/hybrid</td><td>Debugging with screenshot, video and a trace that shows clicks and HTTP calls together</td></tr>
+            <tr><td>Allure</td><td class="path">allure-results-hybrid → allure-report-hybrid</td><td>UI steps and HTTP steps (<code>GET /add_to_cart/1</code>, masked request, response) in one timeline</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>The suite is the <code>hybrid</code> project in the root config. To see it in VS Code's Test Explorer, refresh tests and tick <code>hybrid</code> under Projects in the Playwright panel. Locally a failed test is retried once (twice on CI).</p>
+    </section>
+
+    <section id="compare">
+      <h2>vs other frameworks</h2>
+      <p>The same check, the cart showing what was added, in the UI framework and the hybrid one:</p>
+      <div class="pair">
+        <div>
+          <p class="label">tests/Framework (UI only)</p>
+<pre class="code"><code>await homePage.header.goToProducts();
+await productsPage.addProductToCartAt(0);
+await productsPage.continueShopping();
+await productsPage.addProductToCartAt(1);
+await productsPage.viewCartFromModal();
+<span class="c">// cart checked against what the UI showed</span>
+const rows = await cartPage.getRows();</code></pre>
+        </div>
+        <div>
+          <p class="label">tests/HybridFramework</p>
+<pre class="code"><code>const [a, b] = (await productsApi
+  .getAllProducts()).body.products;
+await apiCart.add(a.id, 3);
+await apiCart.add(b.id);
+await cartPage.open();
+<span class="c">// cart checked against the API's data</span>
+const rows = await cartPage.getRows();</code></pre>
+        </div>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th></th><th>UI (POM)</th><th>API</th><th>Hybrid</th></tr></thead>
+          <tbody>
+            <tr><td>Browser</td><td>Yes</td><td>No</td><td>Yes</td></tr>
+            <tr><td>Setup</td><td>Through the UI</td><td>Over HTTP</td><td>Over HTTP, into the browser's session</td></tr>
+            <tr><td>Checks</td><td>What the user sees</td><td>What the server returns</td><td>Both, and that they agree</td></tr>
+            <tr><td>Full run</td><td>Minutes</td><td>~26 s</td><td>~45 s for 22 tests</td></tr>
+            <tr><td>Best for</td><td>End-to-end journeys</td><td>Contracts, negative cases</td><td>Consistency between layers, fast UI tests with API setup</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+</div>
+
+<!-- Draws the diagrams when the file is opened outside claude.ai. -->
+<script type="module">
+  import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11.4.1/dist/mermaid.esm.min.mjs';
+  const dark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+  mermaid.initialize({ startOnLoad: true, securityLevel: 'strict', theme: dark ? 'dark' : 'neutral' });
+</script>
+</body>
+</html>
