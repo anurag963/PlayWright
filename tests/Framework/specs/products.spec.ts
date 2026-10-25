@@ -38,6 +38,19 @@ test.describe('Products', () => {
     }
   });
 
+  test('Search for a men\'s shirt', async ({ homePage, productsPage, page }) => {
+    const productName = 'Men Tshirt';
+    await homePage.header.goToProducts();
+    await expect(page).toHaveURL(/\/products$/);
+
+    await productsPage.search(productName);
+
+    await expect(page).toHaveURL(/\/products\?search=Men%20Tshirt$/);
+    await expect(productsPage.listingTitle).toHaveText('Searched Products', { ignoreCase: true });
+    await expect(productsPage.productNames()).toHaveText([productName]);
+    expect(await productsPage.productCards.count()).toBe(1);
+  });
+
   test('TC18: View Category Products', async ({ homePage, productsPage, page }) => {
     await expect(homePage.categorySidebar).toBeVisible();
 

@@ -2,6 +2,8 @@ import { defineConfig, devices } from '@playwright/test';
 import { allureReporter, frameworkProject } from './tests/Framework/playwright.config';
 import { apiProject } from './tests/ApiFramework/playwright.config';
 import { apiCucumberProject } from './tests/ApiCucumberFramework/playwright.config';
+import { hybridProject } from './tests/HybridFramework/playwright.config';
+import { hybridCucumberProject } from './tests/HybridCucumberFramework/playwright.config';
 
 /**
  * Read environment variables from file.
@@ -40,7 +42,7 @@ export default defineConfig({
     {
       name: 'chromium',
       /* Learning tests; the POM framework runs in its own project below. */
-      testIgnore: ['**/Framework/**', '**/CucumberFramework/**', '**/ApiFramework/**', '**/ApiCucumberFramework/**'],
+      testIgnore: ['**/Framework/**', '**/CucumberFramework/**', '**/ApiFramework/**', '**/ApiCucumberFramework/**', '**/HybridFramework/**', '**/HybridCucumberFramework/**'],
       use: { ...devices['Desktop Chrome'] },
     },
     /* POM framework (tests/Framework) with its baseURL, timeouts and retries. */
@@ -49,6 +51,10 @@ export default defineConfig({
     apiProject,
     /* Gherkin layer over the API framework. Run `npm run bddgen:api` after editing features. */
     apiCucumberProject,
+    /* Hybrid framework (tests/HybridFramework) – browser plus API clients sharing its session. */
+    hybridProject,
+    /* Gherkin layer over the hybrid framework. Run `npm run bddgen:hybrid` after editing features. */
+    hybridCucumberProject,
 
 /*     {
       name: 'firefox',

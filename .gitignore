@@ -19,4 +19,9 @@ node_modules/
 /cucumber-report-api/
 /allure-results-api-cucumber/
 /allure-report-api-cucumber/
+/allure-results-hybrid/
+/allure-report-hybrid/
+/cucumber-report-hybrid/
+/allure-results-hybrid-cucumber/
+/allure-report-hybrid-cucumber/
 .features-gen/
