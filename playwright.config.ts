@@ -1,5 +1,7 @@
 import { defineConfig, devices } from '@playwright/test';
 import { allureReporter, frameworkProject } from './tests/Framework/playwright.config';
+import { apiProject } from './tests/ApiFramework/playwright.config';
+import { apiCucumberProject } from './tests/ApiCucumberFramework/playwright.config';
 
 /**
  * Read environment variables from file.
@@ -38,11 +40,15 @@ export default defineConfig({
     {
       name: 'chromium',
       /* Learning tests; the POM framework runs in its own project below. */
-      testIgnore: ['**/Framework/**', '**/CucumberFramework/**'],
+      testIgnore: ['**/Framework/**', '**/CucumberFramework/**', '**/ApiFramework/**', '**/ApiCucumberFramework/**'],
       use: { ...devices['Desktop Chrome'] },
     },
     /* POM framework (tests/Framework) with its baseURL, timeouts and retries. */
     frameworkProject,
+    /* API framework (tests/ApiFramework) – request fixture only, no browser. */
+    apiProject,
+    /* Gherkin layer over the API framework. Run `npm run bddgen:api` after editing features. */
+    apiCucumberProject,
 
 /*     {
       name: 'firefox',
