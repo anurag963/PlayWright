@@ -28,7 +28,22 @@
     "allure:api-cucumber:generate": "allure generate allure-results-api-cucumber -o allure-report-api-cucumber --clean",
     "allure:api-cucumber:open": "allure open allure-report-api-cucumber",
     "allure:api-cucumber": "npm run allure:api-cucumber:generate && npm run allure:api-cucumber:open",
-    "test:api-cucumber:allure": "rm -rf allure-results-api-cucumber; npm run test:api-cucumber; npm run allure:api-cucumber"
+    "test:api-cucumber:allure": "rm -rf allure-results-api-cucumber; npm run test:api-cucumber; npm run allure:api-cucumber",
+    "test:hybrid": "playwright test -c tests/HybridFramework",
+    "test:hybrid:headed": "playwright test -c tests/HybridFramework --headed",
+    "report:hybrid": "playwright show-report playwright-report/hybrid",
+    "allure:hybrid:generate": "allure generate allure-results-hybrid -o allure-report-hybrid --clean",
+    "allure:hybrid:open": "allure open allure-report-hybrid",
+    "allure:hybrid": "npm run allure:hybrid:generate && npm run allure:hybrid:open",
+    "test:hybrid:allure": "rm -rf allure-results-hybrid; playwright test -c tests/HybridFramework; npm run allure:hybrid",
+    "bddgen:hybrid": "bddgen -c tests/HybridCucumberFramework",
+    "test:hybrid-cucumber": "bddgen -c tests/HybridCucumberFramework && playwright test -c tests/HybridCucumberFramework",
+    "test:hybrid-cucumber:headed": "bddgen -c tests/HybridCucumberFramework && playwright test -c tests/HybridCucumberFramework --headed",
+    "report:hybrid-cucumber": "playwright show-report playwright-report/hybrid-cucumber",
+    "allure:hybrid-cucumber:generate": "allure generate allure-results-hybrid-cucumber -o allure-report-hybrid-cucumber --clean",
+    "allure:hybrid-cucumber:open": "allure open allure-report-hybrid-cucumber",
+    "allure:hybrid-cucumber": "npm run allure:hybrid-cucumber:generate && npm run allure:hybrid-cucumber:open",
+    "test:hybrid-cucumber:allure": "rm -rf allure-results-hybrid-cucumber; npm run test:hybrid-cucumber; npm run allure:hybrid-cucumber"
   },
   "repository": {
     "type": "git",
