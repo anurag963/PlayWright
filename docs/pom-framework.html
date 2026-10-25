@@ -1,0 +1,476 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Automation Exercise POM Framework</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700&family=Instrument+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: sticky contents rail on the left (desktop), one reading column of ~72ch; diagrams and tables scroll inside their own boxes. */
+:root {
+  --bg: #f6f8f6;
+  --surface: #ffffff;
+  --fg: #18221d;
+  --muted: #56645c;
+  --line: #d9e1db;
+  --accent: #1f7a52;      /* pass-green, the colour of a green test run */
+  --accent-soft: #e2f1e8;
+  --warn: #9a5b00;
+  --warn-soft: #fbefd9;
+  --info: #2d5b9a;
+  --info-soft: #e3ecf8;
+  --code-bg: #eef2ef;
+  --font-display: "Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  --font-body: "Instrument Sans", "Segoe UI", system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #111613; --surface: #18201b; --fg: #e3ebe5; --muted: #9aaba0; --line: #2b362f;
+    --accent: #5cc893; --accent-soft: #1a3326; --warn: #f0b456; --warn-soft: #362a14;
+    --info: #8db4ec; --info-soft: #1b2738; --code-bg: #1d2620; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #111613; --surface: #18201b; --fg: #e3ebe5; --muted: #9aaba0; --line: #2b362f;
+  --accent: #5cc893; --accent-soft: #1a3326; --warn: #f0b456; --warn-soft: #362a14;
+  --info: #8db4ec; --info-soft: #1b2738; --code-bg: #1d2620; color-scheme: dark;
+}
+
+body {
+  background: var(--bg); color: var(--fg);
+  font: 16px/1.6 var(--font-body);
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+.shell { max-width: 1120px; margin: 0 auto; display: grid; grid-template-columns: 210px minmax(0, 1fr); gap: 48px; padding-block: 48px 80px; }
+@media (max-width: 860px) { .shell { grid-template-columns: minmax(0, 1fr); gap: 24px; padding-block: 28px 56px; } .toc { display: none; } }
+
+.toc { position: sticky; top: calc(env(safe-area-inset-top, 0px) + 24px); align-self: start; font-size: 14px; }
+.toc p { font: 600 11px/1 var(--font-body); letter-spacing: .08em; text-transform: uppercase; color: var(--muted); margin: 0 0 12px; }
+.toc ol { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
+.toc a { color: var(--muted); text-decoration: none; }
+.toc a:hover, .toc a:focus-visible { color: var(--accent); }
+
+main { min-width: 0; max-width: 760px; }
+header.top { display: grid; gap: 12px; margin-bottom: 40px; }
+.eyebrow { font: 500 13px/1 var(--font-mono); color: var(--accent); }
+h1 { font: 700 clamp(30px, 5vw, 44px)/1.1 var(--font-display); margin: 0; text-wrap: balance; letter-spacing: -.01em; }
+.lede { color: var(--muted); margin: 0; font-size: 18px; max-width: 62ch; }
+.stats { display: flex; flex-wrap: wrap; gap: 8px 20px; margin-top: 8px; font: 500 13px/1.4 var(--font-mono); color: var(--muted); }
+.stats b { color: var(--fg); font-weight: 500; }
+
+section { padding-block: 32px; border-top: 1px solid var(--line); scroll-margin-top: 16px; }
+h2 { font: 600 26px/1.2 var(--font-display); margin: 0 0 12px; text-wrap: balance; }
+h3 { font: 600 17px/1.3 var(--font-body); margin: 28px 0 8px; }
+p { margin: 0 0 14px; max-width: 68ch; }
+a { color: var(--accent); }
+code { font: 0.86em var(--font-mono); background: var(--code-bg); padding: 1px 5px; border-radius: 4px; overflow-wrap: anywhere; }
+pre.code { font: 13px/1.6 var(--font-mono); background: var(--code-bg); padding: 16px 18px; border-radius: 8px; overflow-x: auto; margin: 0 0 16px; }
+pre.code code { background: none; padding: 0; font-size: inherit; }
+.c { color: var(--muted); }
+
+.diagram { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 20px; overflow-x: auto; margin: 4px 0 16px; }
+.diagram pre.mermaid { margin: 0; background: none; display: flex; justify-content: center; min-width: 560px; }
+.caption { font-size: 14px; color: var(--muted); margin-top: -6px; }
+
+.table-wrap { overflow-x: auto; margin: 4px 0 16px; border: 1px solid var(--line); border-radius: 10px; background: var(--surface); }
+table { border-collapse: collapse; width: 100%; font-size: 14px; }
+th, td { text-align: left; padding: 9px 12px; border-bottom: 1px solid var(--line); vertical-align: top; }
+th { font: 600 11px/1.3 var(--font-body); letter-spacing: .07em; text-transform: uppercase; color: var(--muted); background: var(--bg); }
+tr:last-child td { border-bottom: none; }
+td.tc { font: 500 13px var(--font-mono); white-space: nowrap; }
+td.path { font: 13px var(--font-mono); white-space: nowrap; }
+
+.chip { display: inline-block; font: 500 12px/1 var(--font-mono); padding: 4px 7px; border-radius: 999px; white-space: nowrap; }
+.chip.env { background: var(--warn-soft); color: var(--warn); }
+.chip.api { background: var(--info-soft); color: var(--info); }
+.chip.new { background: var(--accent-soft); color: var(--accent); }
+.chip.none { background: var(--code-bg); color: var(--muted); }
+
+.users { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin: 8px 0 16px; }
+@media (max-width: 640px) { .users { grid-template-columns: minmax(0, 1fr); } }
+.user { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 16px; display: grid; gap: 8px; align-content: start; }
+.user p { margin: 0; font-size: 14px; }
+.user .who { font-size: 13px; color: var(--muted); }
+
+.decisions { display: grid; gap: 14px; margin: 8px 0 0; padding: 0; list-style: none; }
+.decisions li { display: grid; gap: 4px; padding-left: 14px; border-left: 2px solid var(--line); }
+.decisions strong { font-weight: 600; }
+.decisions span { color: var(--muted); font-size: 15px; }
+
+ol.steps { padding-left: 22px; margin: 0 0 16px; display: grid; gap: 6px; }
+@media (prefers-reduced-motion: no-preference) { html { scroll-behavior: smooth; } }
+a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 2px; }
+</style>
+
+<div class="shell">
+  <nav class="toc" aria-label="Contents">
+    <p>Contents</p>
+    <ol>
+      <li><a href="#overview">Overview</a></li>
+      <li><a href="#architecture">Architecture</a></li>
+      <li><a href="#folders">Folder map</a></li>
+      <li><a href="#lifecycle">Test lifecycle</a></li>
+      <li><a href="#classes">Page objects</a></li>
+      <li><a href="#walkthrough">Code walkthrough</a></li>
+      <li><a href="#users">Test users</a></li>
+      <li><a href="#coverage">Coverage map</a></li>
+      <li><a href="#decisions">Design decisions</a></li>
+      <li><a href="#extend">Adding tests</a></li>
+      <li><a href="#run">Running &amp; reports</a></li>
+    </ol>
+  </nav>
+
+  <main>
+    <header class="top">
+      <span class="eyebrow">tests/Framework</span>
+      <h1>Automation Exercise POM Framework</h1>
+      <p class="lede">A Playwright + TypeScript Page Object Model suite for automationexercise.com. This guide explains how the pieces fit together, what happens when a test runs, and how to add more.</p>
+      <div class="stats"><span><b>27</b> tests</span><span><b>26</b> site test cases</span><span><b>11</b> page objects</span><span><b>2</b> components</span><span><b>3</b> reporters</span></div>
+    </header>
+
+    <section id="overview">
+      <h2>Overview</h2>
+      <p>The Page Object Model separates <em>what a test checks</em> from <em>how the page is driven</em>. Specs read like the site's own test case steps. Every selector and click lives in a page class, so a change to the site's markup is fixed in one place.</p>
+      <p>On top of plain POM, the framework adds four things:</p>
+      <ul>
+        <li><strong>Fixtures</strong> that hand each test ready-made page objects and test users, so specs never call <code>new HomePage(page)</code>.</li>
+        <li><strong>An API helper</strong> that creates and deletes accounts through the site's public API, which is much faster than doing it in the UI.</li>
+        <li><strong>Flows</strong> that bundle multi-page journeys used by several tests, such as register or delete account.</li>
+        <li><strong>A <code>.env</code> file</strong> that holds the base URL and the shared login. It is gitignored.</li>
+      </ul>
+    </section>
+
+    <section id="architecture">
+      <h2>Architecture</h2>
+      <p>Each layer only talks to the layer below it. Specs never touch selectors, and page objects never contain assertions about business rules.</p>
+      <div class="diagram">
+<pre class="mermaid">
+flowchart TB
+  subgraph L1["Test layer"]
+    SPECS["specs/*.spec.ts<br/>auth · products · cart · checkout · general"]
+  end
+  subgraph L2["Glue layer"]
+    FIX["fixtures/pomFixtures.ts<br/>page objects · test users · ad blocking · Allure labels"]
+    FLOWS["utils/flows.ts<br/>register · delete account · address check"]
+  end
+  subgraph L3["Page layer"]
+    PAGES["pages/*Page.ts<br/>locators + actions"]
+    COMP["components/<br/>Header · Footer"]
+  end
+  subgraph L4["Support"]
+    ENV["utils/env.ts<br/>reads .env"]
+    DATA["utils/dataFactory.ts<br/>unique users, cards"]
+    API["utils/apiHelper.ts<br/>create / verify / delete account"]
+  end
+  PW["Playwright browser + request"]
+  SITE[("automationexercise.com")]
+
+  SPECS --> FIX
+  SPECS --> FLOWS
+  FLOWS --> PAGES
+  FIX --> PAGES
+  FIX --> API
+  FIX --> DATA
+  PAGES --> COMP
+  PAGES --> PW
+  API --> PW
+  API --> ENV
+  FIX --> ENV
+  PW --> SITE
+</pre>
+      </div>
+      <p class="caption">Arrows mean "uses". The config and global setup sit outside this picture; they run before any test, as shown in the lifecycle below.</p>
+    </section>
+
+    <section id="folders">
+      <h2>Folder map</h2>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Path</th><th>Responsibility</th></tr></thead>
+          <tbody>
+            <tr><td class="path">playwright.config.ts</td><td>Test folder, base URL from <code>.env</code>, timeouts, retries, screenshot/video/trace on failure, and the list, HTML and Allure reporters.</td></tr>
+            <tr><td class="path">global-setup.ts</td><td>Runs once before the suite. Checks the <code>.env</code> login against the API and stops the run with a clear message if it is wrong.</td></tr>
+            <tr><td class="path">.env / .env.example</td><td><code>BASE_URL</code>, <code>USER_NAME</code>, <code>USER_EMAIL</code>, <code>USER_PASSWORD</code>. Only the example file is committed.</td></tr>
+            <tr><td class="path">pages/</td><td>One class per screen. All extend <code>BasePage</code>, which gives them <code>header</code>, <code>footer</code>, <code>open()</code> and scroll helpers.</td></tr>
+            <tr><td class="path">components/</td><td>Parts that appear on every page: the top nav (<code>HeaderComponent</code>) and the subscription footer (<code>FooterComponent</code>).</td></tr>
+            <tr><td class="path">fixtures/pomFixtures.ts</td><td>Extends Playwright's <code>test</code>. Specs import <code>test</code> and <code>expect</code> from here, not from <code>@playwright/test</code>.</td></tr>
+            <tr><td class="path">utils/env.ts</td><td>Loads <code>.env</code> with dotenv and fails fast if a required key is missing.</td></tr>
+            <tr><td class="path">utils/dataFactory.ts</td><td>Builds unique users (timestamped email) and payment card data.</td></tr>
+            <tr><td class="path">utils/apiHelper.ts</td><td>Wraps <code>/api/createAccount</code>, <code>/api/verifyLogin</code> and <code>/api/deleteAccount</code>.</td></tr>
+            <tr><td class="path">utils/flows.ts</td><td>Multi-page journeys reused across specs.</td></tr>
+            <tr><td class="path">specs/</td><td>The tests, grouped by feature area.</td></tr>
+            <tr><td class="path">testData/</td><td>Files the tests need, such as the Contact Us upload.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section id="lifecycle">
+      <h2>Test lifecycle</h2>
+      <p>What happens from <code>npm run test:framework</code> to the report, using TC16 (login before checkout) as the example. Fixtures are created lazily: a test only gets the fixtures it names in its parameters, plus the automatic ones.</p>
+      <div class="diagram">
+<pre class="mermaid">
+sequenceDiagram
+  autonumber
+  participant CLI as npx playwright test
+  participant CFG as config + env.ts
+  participant GS as global-setup
+  participant FX as fixtures
+  participant API as Site API
+  participant T as TC16 spec
+  participant PO as Page objects
+  participant WEB as Website
+  participant REP as Reporters
+
+  CLI->>CFG: load config, read .env
+  CLI->>GS: run once
+  GS->>API: verifyLogin(.env user)
+  API-->>GS: User exists
+  CLI->>FX: start test, build fixtures
+  FX->>FX: allureLabels (auto): epic, feature, TC tag
+  FX->>FX: page: block ad domains
+  FX->>API: apiUser: createAccount(unique user)
+  FX->>T: inject homePage, loginPage, cartPage ... apiUser
+  T->>PO: header.goToSignupLogin(), login(...)
+  PO->>WEB: click, fill, wait for load
+  T->>T: expect "Logged in as ..."
+  T->>PO: add product, checkout, pay
+  PO->>WEB: UI actions
+  T->>PO: delete account via UI
+  T-->>FX: test body finished
+  FX->>API: apiUser teardown: deleteAccount (safety net)
+  FX-->>REP: result, steps, screenshot / video / trace on failure
+  REP-->>CLI: list output, HTML report, allure-results
+</pre>
+      </div>
+    </section>
+
+    <section id="classes">
+      <h2>Page objects</h2>
+      <p>Every page inherits from <code>BasePage</code>. Locators are <code>readonly</code> fields set in the constructor; actions are <code>async</code> methods named after what a user does. Header and footer are composed in rather than inherited, because they are separate parts of the screen.</p>
+      <div class="diagram">
+<pre class="mermaid">
+classDiagram
+  direction LR
+  class BasePage {
+    &lt;&lt;abstract&gt;&gt;
+    +header HeaderComponent
+    +footer FooterComponent
+    #path string
+    +open()
+    #clickAndWaitForLoad(locator)
+    +scrollToBottom()
+    +scrollToTop()
+  }
+  class HeaderComponent {
+    +loggedInAs
+    +goToProducts()
+    +goToCart()
+    +goToSignupLogin()
+    +logout()
+    +deleteAccount()
+  }
+  class FooterComponent {
+    +subscriptionHeading
+    +scrollUpArrow
+    +subscribe(email)
+  }
+  BasePage *-- HeaderComponent
+  BasePage *-- FooterComponent
+  BasePage <|-- HomePage
+  BasePage <|-- LoginPage
+  BasePage <|-- SignupPage
+  BasePage <|-- AccountStatusPage
+  BasePage <|-- ProductsPage
+  BasePage <|-- ProductDetailsPage
+  BasePage <|-- CartPage
+  BasePage <|-- CheckoutPage
+  BasePage <|-- PaymentPage
+  BasePage <|-- ContactUsPage
+  BasePage <|-- TestCasesPage
+</pre>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Page object</th><th>URL</th><th>Main actions</th></tr></thead>
+          <tbody>
+            <tr><td class="path">HomePage</td><td class="path">/</td><td><code>viewProduct(id)</code>, <code>addFirstRecommendedToCart()</code></td></tr>
+            <tr><td class="path">LoginPage</td><td class="path">/login</td><td><code>login(email, pw)</code>, <code>startSignup(name, email)</code></td></tr>
+            <tr><td class="path">SignupPage</td><td class="path">/signup</td><td><code>completeRegistration(user)</code></td></tr>
+            <tr><td class="path">AccountStatusPage</td><td class="path">/account_created, /delete_account</td><td><code>continue()</code></td></tr>
+            <tr><td class="path">ProductsPage</td><td class="path">/products, category, brand, search</td><td><code>search()</code>, <code>addProductToCartAt(i)</code>, <code>openCategory()</code>, <code>openBrand()</code></td></tr>
+            <tr><td class="path">ProductDetailsPage</td><td class="path">/product_details/:id</td><td><code>setQuantity()</code>, <code>addToCart()</code>, <code>submitReview()</code></td></tr>
+            <tr><td class="path">CartPage</td><td class="path">/view_cart</td><td><code>getRows()</code>, <code>removeProduct(id)</code>, <code>proceedToCheckout()</code></td></tr>
+            <tr><td class="path">CheckoutPage</td><td class="path">/checkout</td><td><code>placeOrder(comment)</code></td></tr>
+            <tr><td class="path">PaymentPage</td><td class="path">/payment, /payment_done</td><td><code>payAndConfirm(card)</code>, <code>downloadInvoice()</code></td></tr>
+            <tr><td class="path">ContactUsPage</td><td class="path">/contact_us</td><td><code>fillForm()</code>, <code>submit()</code> (accepts the confirm dialog)</td></tr>
+            <tr><td class="path">TestCasesPage</td><td class="path">/test_cases</td><td>heading only</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section id="walkthrough">
+      <h2>Code walkthrough</h2>
+      <h3>1. A spec asks for what it needs</h3>
+      <p>Fixture names in the test's parameters decide what gets built. Here the test gets four page objects and a throwaway user that already exists on the site.</p>
+<pre class="code"><code>import { test, expect } from '../fixtures/pomFixtures';
+
+test('TC16: Place Order: Login before Checkout', async ({
+  homePage, loginPage, cartPage, paymentPage, apiUser, ...
+}) =&gt; {
+  await homePage.header.goToSignupLogin();
+  await loginPage.login(apiUser.email, apiUser.password);
+  await expect(loggedInText(homePage.header, apiUser.name)).toBeVisible();
+  ...
+});</code></pre>
+      <h3>2. The fixture builds and cleans up</h3>
+      <p>Code before <code>use()</code> is setup; code after it is teardown. Teardown runs even if the test fails.</p>
+<pre class="code"><code>apiUser: async ({ api }, use) =&gt; {
+  const user = createUser();             <span class="c">// unique email per run</span>
+  await api.createAccount(user);         <span class="c">// setup via API</span>
+  await use(user);                       <span class="c">// test runs here</span>
+  await api.deleteAccount(user.email, user.password);  <span class="c">// teardown</span>
+},</code></pre>
+      <h3>3. The page object hides the selectors</h3>
+<pre class="code"><code>export class LoginPage extends BasePage {
+  protected readonly path = '/login';
+  readonly loginEmail = ...('[data-qa="login-email"]');
+
+  async login(email: string, password: string) {
+    await this.loginEmail.fill(email);
+    await this.loginPassword.fill(password);
+    await this.loginButton.click();
+  }
+}</code></pre>
+      <p>The site has <code>data-qa</code> attributes on most form fields, so the framework uses those first. They are the selectors least likely to change.</p>
+    </section>
+
+    <section id="users">
+      <h2>Test users</h2>
+      <p>Many site test cases end with "Delete Account". If every test used your account, the first one would delete it and the rest would fail. So there are three kinds of user:</p>
+      <div class="users">
+        <div class="user">
+          <span class="chip env">envUser</span>
+          <p>Your account from <code>.env</code>. Shared by all runs and <strong>never deleted</strong>.</p>
+          <p class="who">TC2, TC4, TC5</p>
+        </div>
+        <div class="user">
+          <span class="chip api">apiUser</span>
+          <p>Created through the API before the test, deleted after it. For tests that need an existing account.</p>
+          <p class="who">TC2b, TC16, TC20</p>
+        </div>
+        <div class="user">
+          <span class="chip new">newUser</span>
+          <p>Unique data only; the test registers it through the UI. Deleted after the test in case the test failed early.</p>
+          <p class="who">TC1, TC14, TC15, TC23, TC24</p>
+        </div>
+      </div>
+      <p>Unique emails (timestamp plus a random number) mean tests can run in parallel without clashing.</p>
+    </section>
+
+    <section id="coverage">
+      <h2>Coverage map</h2>
+      <p>All 26 cases from the site's <a href="https://www.automationexercise.com/test_cases" target="_blank" rel="noopener">test cases page</a>, plus TC2b.</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Case</th><th>Name</th><th>Spec</th><th>User</th></tr></thead>
+          <tbody>
+            <tr><td class="tc">TC1</td><td>Register User</td><td class="path">auth</td><td><span class="chip new">newUser</span></td></tr>
+            <tr><td class="tc">TC2</td><td>Login with correct email and password</td><td class="path">auth</td><td><span class="chip env">envUser</span></td></tr>
+            <tr><td class="tc">TC2b</td><td>Login and delete account</td><td class="path">auth</td><td><span class="chip api">apiUser</span></td></tr>
+            <tr><td class="tc">TC3</td><td>Login with incorrect email and password</td><td class="path">auth</td><td><span class="chip none">none</span></td></tr>
+            <tr><td class="tc">TC4</td><td>Logout User</td><td class="path">auth</td><td><span class="chip env">envUser</span></td></tr>
+            <tr><td class="tc">TC5</td><td>Register with existing email</td><td class="path">auth</td><td><span class="chip env">envUser</span></td></tr>
+            <tr><td class="tc">TC6</td><td>Contact Us Form</td><td class="path">general</td><td><span class="chip none">none</span></td></tr>
+            <tr><td class="tc">TC7</td><td>Verify Test Cases Page</td><td class="path">general</td><td><span class="chip none">none</span></td></tr>
+            <tr><td class="tc">TC8</td><td>All Products and product detail page</td><td class="path">products</td><td><span class="chip none">none</span></td></tr>
+            <tr><td class="tc">TC9</td><td>Search Product</td><td class="path">products</td><td><span class="chip none">none</span></td></tr>
+            <tr><td class="tc">TC10</td><td>Subscription in home page</td><td class="path">general</td><td><span class="chip none">none</span></td></tr>
+            <tr><td class="tc">TC11</td><td>Subscription in Cart page</td><td class="path">general</td><td><span class="chip none">none</span></td></tr>
+            <tr><td class="tc">TC12</td><td>Add Products in Cart</td><td class="path">cart</td><td><span class="chip none">none</span></td></tr>
+            <tr><td class="tc">TC13</td><td>Product quantity in Cart</td><td class="path">cart</td><td><span class="chip none">none</span></td></tr>
+            <tr><td class="tc">TC14</td><td>Place Order: Register while Checkout</td><td class="path">checkout</td><td><span class="chip new">newUser</span></td></tr>
+            <tr><td class="tc">TC15</td><td>Place Order: Register before Checkout</td><td class="path">checkout</td><td><span class="chip new">newUser</span></td></tr>
+            <tr><td class="tc">TC16</td><td>Place Order: Login before Checkout</td><td class="path">checkout</td><td><span class="chip api">apiUser</span></td></tr>
+            <tr><td class="tc">TC17</td><td>Remove Products From Cart</td><td class="path">cart</td><td><span class="chip none">none</span></td></tr>
+            <tr><td class="tc">TC18</td><td>View Category Products</td><td class="path">products</td><td><span class="chip none">none</span></td></tr>
+            <tr><td class="tc">TC19</td><td>View &amp; Cart Brand Products</td><td class="path">products</td><td><span class="chip none">none</span></td></tr>
+            <tr><td class="tc">TC20</td><td>Search Products and Verify Cart After Login</td><td class="path">cart</td><td><span class="chip api">apiUser</span></td></tr>
+            <tr><td class="tc">TC21</td><td>Add review on product</td><td class="path">products</td><td><span class="chip none">none</span></td></tr>
+            <tr><td class="tc">TC22</td><td>Add to cart from Recommended items</td><td class="path">cart</td><td><span class="chip none">none</span></td></tr>
+            <tr><td class="tc">TC23</td><td>Address details in checkout page</td><td class="path">checkout</td><td><span class="chip new">newUser</span></td></tr>
+            <tr><td class="tc">TC24</td><td>Download Invoice after purchase order</td><td class="path">checkout</td><td><span class="chip new">newUser</span></td></tr>
+            <tr><td class="tc">TC25</td><td>Scroll Up using Arrow button</td><td class="path">general</td><td><span class="chip none">none</span></td></tr>
+            <tr><td class="tc">TC26</td><td>Scroll Up without Arrow button</td><td class="path">general</td><td><span class="chip none">none</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section id="decisions">
+      <h2>Design decisions</h2>
+      <ul class="decisions">
+        <li><strong>Ads are blocked at the network level.</strong><span>The site loads Google ads and full-screen vignettes that cover buttons. The <code>page</code> fixture aborts requests to ad domains, so clicks land where expected.</span></li>
+        <li><strong>Navigation waits for the page's load event.</strong><span>The site attaches its jQuery handlers at the bottom of each page, after a slow Google Maps script. Clicking before that broke search, the category menu, the cart pop-up and the contact form. <code>clickAndWaitForLoad()</code> in <code>BasePage</code> and <code>navigate()</code> in the header handle this.</span></li>
+        <li><strong>Setup goes through the API.</strong><span>Creating a user in the UI takes about 15 form steps. Tests that only need an existing account get one from the API in under a second.</span></li>
+        <li><strong>The login is checked before any test runs.</strong><span>If <code>.env</code> has the wrong password, global setup stops the run with one clear message instead of a dozen failed login tests.</span></li>
+        <li><strong>TC9 searches for "Jeans".</strong><span>The site's search also matches category names, so "Top" returns shirts from the Kids "Tops &amp; Shirts" category.</span></li>
+        <li><strong>Order success is checked on the confirmation page.</strong><span>The "Your order has been placed successfully!" message only flashes before the page changes, so tests check the "Order Placed!" heading instead.</span></li>
+      </ul>
+    </section>
+
+    <section id="extend">
+      <h2>Adding tests</h2>
+      <h3>A test on an existing page</h3>
+      <ol class="steps">
+        <li>Open the matching spec in <code>specs/</code>, or create <code>specs/&lt;area&gt;.spec.ts</code>.</li>
+        <li>Import <code>test</code> and <code>expect</code> from <code>../fixtures/pomFixtures</code>.</li>
+        <li>Name the page objects and user you need in the test's parameters.</li>
+        <li>Call page actions and assert on page locators. Keep selectors out of the spec.</li>
+      </ol>
+      <h3>A new page</h3>
+      <ol class="steps">
+        <li>Create <code>pages/NewPage.ts</code> extending <code>BasePage</code> with a <code>path</code>.</li>
+        <li>Add locators as <code>readonly</code> fields, preferring <code>data-qa</code>, then ids, then roles and text.</li>
+        <li>Use <code>clickAndWaitForLoad()</code> for clicks that open a new page.</li>
+        <li>Register it in <code>fixtures/pomFixtures.ts</code>: add the type and a one-line fixture.</li>
+      </ol>
+<pre class="code"><code><span class="c">// fixtures/pomFixtures.ts</span>
+type PomFixtures = { ...; newPage: NewPage };
+newPage: async ({ page }, use) =&gt; use(new NewPage(page)),</code></pre>
+    </section>
+
+    <section id="run">
+      <h2>Running &amp; reports</h2>
+<pre class="code"><code>npm run test:framework              <span class="c"># headless, all tests</span>
+npm run test:framework:headed       <span class="c"># watch the browser</span>
+npx playwright test -c tests/Framework -g "TC14"   <span class="c"># one test</span>
+
+npm run report:framework            <span class="c"># Playwright HTML report</span>
+npm run test:framework:allure       <span class="c"># clean, run, build and open Allure</span>
+npm run allure:report               <span class="c"># build and open Allure from last results</span></code></pre>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Reporter</th><th>Output</th><th>Use it for</th></tr></thead>
+          <tbody>
+            <tr><td>list</td><td>terminal</td><td>Live progress while tests run</td></tr>
+            <tr><td>HTML</td><td class="path">playwright-report/framework</td><td>Debugging a failure with trace, video and screenshot</td></tr>
+            <tr><td>Allure</td><td class="path">allure-results → allure-report</td><td>Sharing results grouped by epic, feature and TC tag, with run history</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>Passing <code>--reporter=...</code> on the command line replaces all three configured reporters, so no Allure results are written. Use the npm scripts instead.</p>
+      <p>Locally a failed test is retried once (twice on CI). A trace is recorded on the retry, and screenshots and video are kept for failures.</p>
+    </section>
+  </main>
+</div>
+
+<!-- Draws the diagrams when the file is opened outside claude.ai. -->
+<script type="module">
+  import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11.4.1/dist/mermaid.esm.min.mjs';
+  const dark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+  mermaid.initialize({ startOnLoad: true, securityLevel: 'strict', theme: dark ? 'dark' : 'neutral' });
+</script>
+</body></html>

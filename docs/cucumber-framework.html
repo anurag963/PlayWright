@@ -1,0 +1,636 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Automation Exercise Cucumber Framework</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700&family=Instrument+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: sibling of the POM guide. Sticky contents rail left, one reading column; Gherkin blocks use keyword colours (Given / When / Then) as the page's signature detail. */
+:root {
+  --bg: #f5f8f4;
+  --surface: #ffffff;
+  --fg: #19231c;
+  --muted: #56655a;
+  --line: #d8e2d9;
+  --accent: #2f7d3a;        /* cucumber green */
+  --accent-soft: #e3f1e3;
+  --given: #2d5b9a;
+  --given-soft: #e3ecf8;
+  --when: #8a4fa8;
+  --when-soft: #f1e6f7;
+  --then: #2f7d3a;
+  --then-soft: #e3f1e3;
+  --warn: #9a5b00;
+  --warn-soft: #fbefd9;
+  --tag: #a3480f;
+  --str: #6b5a12;
+  --code-bg: #eef2ec;
+  --font-display: "Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  --font-body: "Instrument Sans", "Segoe UI", system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #101511; --surface: #171f19; --fg: #e3ebe4; --muted: #9bab9f; --line: #2a362d;
+    --accent: #6fcf7d; --accent-soft: #1b3320; --given: #8db4ec; --given-soft: #1b2738;
+    --when: #d3a1ec; --when-soft: #2e1f37; --then: #6fcf7d; --then-soft: #1b3320;
+    --warn: #f0b456; --warn-soft: #362a14; --tag: #f0a46e; --str: #e2cf7a; --code-bg: #1c251e;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #101511; --surface: #171f19; --fg: #e3ebe4; --muted: #9bab9f; --line: #2a362d;
+  --accent: #6fcf7d; --accent-soft: #1b3320; --given: #8db4ec; --given-soft: #1b2738;
+  --when: #d3a1ec; --when-soft: #2e1f37; --then: #6fcf7d; --then-soft: #1b3320;
+  --warn: #f0b456; --warn-soft: #362a14; --tag: #f0a46e; --str: #e2cf7a; --code-bg: #1c251e;
+  color-scheme: dark;
+}
+
+body {
+  background: var(--bg); color: var(--fg);
+  font: 16px/1.6 var(--font-body);
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+.shell { max-width: 1120px; margin: 0 auto; display: grid; grid-template-columns: 210px minmax(0, 1fr); gap: 48px; padding-block: 48px 80px; }
+@media (max-width: 860px) { .shell { grid-template-columns: minmax(0, 1fr); gap: 24px; padding-block: 28px 56px; } .toc { display: none; } }
+
+.toc { position: sticky; top: calc(env(safe-area-inset-top, 0px) + 24px); align-self: start; font-size: 14px; }
+.toc p { font: 600 11px/1 var(--font-body); letter-spacing: .08em; text-transform: uppercase; color: var(--muted); margin: 0 0 12px; }
+.toc ol { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
+.toc a { color: var(--muted); text-decoration: none; }
+.toc a:hover, .toc a:focus-visible { color: var(--accent); }
+
+main { min-width: 0; max-width: 760px; }
+header.top { display: grid; gap: 12px; margin-bottom: 40px; }
+.eyebrow { font: 500 13px/1 var(--font-mono); color: var(--accent); }
+h1 { font: 700 clamp(30px, 5vw, 44px)/1.1 var(--font-display); margin: 0; text-wrap: balance; letter-spacing: -.01em; }
+.lede { color: var(--muted); margin: 0; font-size: 18px; max-width: 62ch; }
+.stats { display: flex; flex-wrap: wrap; gap: 8px 20px; margin-top: 8px; font: 500 13px/1.4 var(--font-mono); color: var(--muted); }
+.stats b { color: var(--fg); font-weight: 500; }
+
+section { padding-block: 32px; border-top: 1px solid var(--line); scroll-margin-top: 16px; }
+h2 { font: 600 26px/1.2 var(--font-display); margin: 0 0 12px; text-wrap: balance; }
+h3 { font: 600 17px/1.3 var(--font-body); margin: 28px 0 8px; }
+p { margin: 0 0 14px; max-width: 68ch; }
+ul { margin: 0 0 14px; padding-left: 22px; display: grid; gap: 4px; }
+a { color: var(--accent); }
+code { font: 0.86em var(--font-mono); background: var(--code-bg); padding: 1px 5px; border-radius: 4px; overflow-wrap: anywhere; }
+pre.code { font: 13px/1.65 var(--font-mono); background: var(--code-bg); padding: 16px 18px; border-radius: 8px; overflow-x: auto; margin: 0 0 16px; }
+pre.code code { background: none; padding: 0; font-size: inherit; }
+.c { color: var(--muted); }
+.kw-feature { color: var(--fg); font-weight: 500; }
+.kw-given { color: var(--given); font-weight: 500; }
+.kw-when { color: var(--when); font-weight: 500; }
+.kw-then { color: var(--then); font-weight: 500; }
+.tg { color: var(--tag); }
+.st { color: var(--str); }
+
+.diagram { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 20px; overflow-x: auto; margin: 4px 0 16px; }
+.diagram pre.mermaid { margin: 0; background: none; display: flex; justify-content: center; min-width: 560px; }
+.caption { font-size: 14px; color: var(--muted); margin-top: -6px; }
+
+.pair { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 12px; margin-bottom: 16px; }
+.pair > div { min-width: 0; }
+.pair .label { font: 600 11px/1 var(--font-body); letter-spacing: .07em; text-transform: uppercase; color: var(--muted); margin: 0 0 8px; }
+.pair pre.code { margin: 0; height: 100%; box-sizing: border-box; }
+@media (max-width: 700px) { .pair { grid-template-columns: minmax(0, 1fr); } }
+
+.table-wrap { overflow-x: auto; margin: 4px 0 16px; border: 1px solid var(--line); border-radius: 10px; background: var(--surface); }
+table { border-collapse: collapse; width: 100%; font-size: 14px; }
+th, td { text-align: left; padding: 9px 12px; border-bottom: 1px solid var(--line); vertical-align: top; }
+th { font: 600 11px/1.3 var(--font-body); letter-spacing: .07em; text-transform: uppercase; color: var(--muted); background: var(--bg); }
+tr:last-child td { border-bottom: none; }
+td.tc, td.path { font: 13px var(--font-mono); white-space: nowrap; }
+
+.chip { display: inline-block; font: 500 12px/1 var(--font-mono); padding: 4px 7px; border-radius: 999px; white-space: nowrap; }
+.chip.env { background: var(--warn-soft); color: var(--warn); }
+.chip.api { background: var(--given-soft); color: var(--given); }
+.chip.new { background: var(--accent-soft); color: var(--accent); }
+.chip.none { background: var(--code-bg); color: var(--muted); }
+
+.users { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin: 8px 0 16px; }
+@media (max-width: 640px) { .users { grid-template-columns: minmax(0, 1fr); } }
+.user { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 16px; display: grid; gap: 8px; align-content: start; }
+.user p { margin: 0; font-size: 14px; }
+.user .who { font-size: 13px; color: var(--muted); }
+
+/* Step catalogue */
+.catalogue { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; overflow: hidden; margin: 8px 0 16px; }
+.cat-controls { display: grid; gap: 10px; padding: 14px; border-bottom: 1px solid var(--line); background: var(--bg); }
+.cat-controls input { font: 15px var(--font-body); padding: 9px 12px; border: 1px solid var(--line); border-radius: 8px; background: var(--surface); color: var(--fg); width: 100%; box-sizing: border-box; }
+.cat-controls input:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+.filters { display: flex; flex-wrap: wrap; gap: 6px; }
+.filters button { font: 500 13px var(--font-body); padding: 5px 10px; border-radius: 999px; border: 1px solid var(--line); background: var(--surface); color: var(--muted); cursor: pointer; }
+.filters button[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: var(--surface); }
+.filters button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.cat-count { font: 13px var(--font-mono); color: var(--muted); }
+.cat-list { list-style: none; margin: 0; padding: 0; max-height: 440px; overflow-y: auto; }
+.cat-list li { display: grid; grid-template-columns: 56px minmax(0, 1fr) auto; gap: 10px; align-items: baseline; padding: 8px 14px; border-bottom: 1px solid var(--line); font-size: 14px; }
+.cat-list li:last-child { border-bottom: none; }
+.cat-list .k { font: 500 12px var(--font-mono); }
+.cat-list .k.Given { color: var(--given); } .cat-list .k.When { color: var(--when); } .cat-list .k.Then { color: var(--then); }
+.cat-list .t { font-family: var(--font-mono); font-size: 13px; overflow-wrap: anywhere; }
+.cat-list .t .p { color: var(--str); }
+.cat-list .f { font: 12px var(--font-mono); color: var(--muted); white-space: nowrap; }
+@media (max-width: 520px) { .cat-list li { grid-template-columns: 48px minmax(0, 1fr); } .cat-list .f { display: none; } }
+.cat-empty { padding: 16px 14px; color: var(--muted); font-size: 14px; }
+
+.pitfalls { display: grid; gap: 14px; margin: 8px 0 0; padding: 0; list-style: none; }
+.pitfalls li { display: grid; gap: 4px; padding-left: 14px; border-left: 2px solid var(--line); }
+.pitfalls strong { font-weight: 600; }
+.pitfalls span { color: var(--muted); font-size: 15px; }
+
+ol.steps { padding-left: 22px; margin: 0 0 16px; display: grid; gap: 6px; }
+@media (prefers-reduced-motion: no-preference) { html { scroll-behavior: smooth; } }
+a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 2px; }
+</style>
+
+<div class="shell">
+  <nav class="toc" aria-label="Contents">
+    <p>Contents</p>
+    <ol>
+      <li><a href="#overview">Overview</a></li>
+      <li><a href="#architecture">Architecture</a></li>
+      <li><a href="#pipeline">Generate &amp; run</a></li>
+      <li><a href="#anatomy">Sentence to code</a></li>
+      <li><a href="#lifecycle">Scenario lifecycle</a></li>
+      <li><a href="#folders">Folder map</a></li>
+      <li><a href="#gherkin">Gherkin used</a></li>
+      <li><a href="#context">Context &amp; users</a></li>
+      <li><a href="#catalogue">Step catalogue</a></li>
+      <li><a href="#coverage">Coverage map</a></li>
+      <li><a href="#run">Running</a></li>
+      <li><a href="#extend">Adding scenarios</a></li>
+      <li><a href="#pitfalls">Pitfalls</a></li>
+      <li><a href="#compare">vs POM framework</a></li>
+    </ol>
+  </nav>
+
+  <main>
+    <header class="top">
+      <span class="eyebrow">tests/CucumberFramework</span>
+      <h1>Automation Exercise Cucumber Framework</h1>
+      <p class="lede">The Page Object Model framework with a Gherkin layer on top. Test cases are written as plain-language scenarios; step definitions connect each sentence to the same page objects.</p>
+      <div class="stats"><span><b>5</b> feature files</span><span><b>27</b> scenarios</span><span><b>28</b> tests</span><span><b>79</b> step definitions</span><span><b>4</b> reporters</span></div>
+    </header>
+
+    <section id="overview">
+      <h2>Overview</h2>
+      <p>The framework is built on <a href="https://vitalets.github.io/playwright-bdd" target="_blank" rel="noopener">playwright-bdd</a>. It reads your <code>.feature</code> files, checks that every sentence has a step definition, and generates ordinary Playwright tests from them. Playwright then runs those tests.</p>
+      <p>Because the tests are still Playwright tests, everything from the POM framework keeps working:</p>
+      <ul>
+        <li>Page objects, components and flows, unchanged.</li>
+        <li>Fixtures, including the API-created test users and the ad blocking.</li>
+        <li>Parallel workers, retries, traces, screenshots and video.</li>
+        <li>The Playwright HTML report and Allure, plus a Cucumber HTML report.</li>
+        <li>The VS Code test explorer, where each scenario is listed as a test.</li>
+      </ul>
+      <p>The other common option, cucumber-js, brings its own runner. You would rebuild parallelism, browser setup, retries and reporting yourself, and lose Playwright's fixtures.</p>
+    </section>
+
+    <section id="architecture">
+      <h2>Architecture</h2>
+      <p>The Gherkin layer sits on top of the existing framework. Nothing below the step definitions knows that Gherkin exists.</p>
+      <div class="diagram">
+<pre class="mermaid">
+flowchart TB
+  subgraph G["Gherkin layer"]
+    FEAT["features/*.feature<br/>scenarios in plain language"]
+    STEPS["steps/*.steps.ts<br/>sentence → page-object calls"]
+  end
+  BDDGEN["bddgen<br/>validates steps, generates tests"]
+  GEN[".features-gen/*.spec.js<br/>generated Playwright tests"]
+  RUNNER["Playwright test runner<br/>workers · retries · traces"]
+  subgraph F["Framework (shared with POM version)"]
+    FIX["fixtures/pomFixtures.ts<br/>createBdd · ctx · page objects · users"]
+    PAGES["pages/ + components/"]
+    UTILS["utils/<br/>env · data · API · flows"]
+  end
+  SITE[("automationexercise.com")]
+  REP["Reports<br/>Cucumber HTML · Playwright HTML · Allure"]
+
+  FEAT --> BDDGEN
+  STEPS --> BDDGEN
+  BDDGEN --> GEN
+  GEN --> RUNNER
+  RUNNER --> STEPS
+  STEPS --> FIX
+  FIX --> PAGES
+  FIX --> UTILS
+  PAGES --> SITE
+  UTILS --> SITE
+  RUNNER --> REP
+</pre>
+      </div>
+      <p class="caption">Step definitions take part twice: <code>bddgen</code> reads them to check every sentence is covered, and the runner calls them while a scenario runs.</p>
+    </section>
+
+    <section id="pipeline">
+      <h2>Generate &amp; run</h2>
+      <p>Running a scenario is a two-stage process. <code>npm run test:cucumber</code> does both stages.</p>
+      <div class="diagram">
+<pre class="mermaid">
+flowchart LR
+  A["Edit a .feature file"] --> B["npx bddgen"]
+  B --> C{"Every sentence has<br/>a step definition?"}
+  C -- "no" --> D["bddgen fails and prints<br/>a code snippet"]
+  D --> E["Add the step in steps/*.steps.ts"]
+  E --> B
+  C -- "yes" --> F["Writes .features-gen/*.spec.js"]
+  F --> G["playwright test"]
+  G --> H["Cucumber HTML<br/>Playwright HTML<br/>Allure results"]
+</pre>
+      </div>
+      <p>Generated files are gitignored and are recreated on every run. Never edit them; edit the feature or the step instead.</p>
+    </section>
+
+    <section id="anatomy">
+      <h2>Sentence to code</h2>
+      <p>Each sentence in a scenario is matched against step definition patterns. Quoted text and numbers become arguments; fixtures are requested by name, just like in a Playwright test.</p>
+      <div class="pair">
+        <div>
+          <p class="label">Feature file</p>
+<pre class="code"><code><span class="kw-when">When</span> I search for <span class="st">"Jeans"</span>
+<span class="kw-then">Then</span> the listing title is <span class="st">"Searched Products"</span>
+<span class="kw-when">When</span> I add the product at position <span class="st">1</span> to the cart</code></pre>
+        </div>
+        <div>
+          <p class="label">Step definition</p>
+<pre class="code"><code>When('I search for {string}',
+  async ({ productsPage }, term) =&gt; {
+    await productsPage.search(term);
+  });</code></pre>
+        </div>
+      </div>
+      <h3>What each part does</h3>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Part</th><th>Meaning</th></tr></thead>
+          <tbody>
+            <tr><td class="path">'I search for {string}'</td><td>The pattern (a Cucumber Expression). <code>{string}</code> matches quoted text, <code>{int}</code> a whole number, <code>{word}</code> one word. <code>product(s)</code> makes the "s" optional.</td></tr>
+            <tr><td class="path">{ productsPage }</td><td>Fixtures this step needs. They are created for the scenario the same way as in a Playwright test.</td></tr>
+            <tr><td class="path">term</td><td>The value captured by <code>{string}</code>, here <code>"Jeans"</code>.</td></tr>
+            <tr><td class="path">When / Then</td><td>Imported from <code>fixtures/pomFixtures.ts</code>, where <code>createBdd(test)</code> binds them to the framework's fixtures. The keyword in the feature file does not have to match: any step can follow <code>Given</code>, <code>When</code>, <code>Then</code>, <code>And</code> or <code>But</code>.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section id="lifecycle">
+      <h2>Scenario lifecycle</h2>
+      <p>What happens when TC16 (log in before checkout) runs. The fixtures a scenario needs are worked out from all of its steps, so the API user is created before the first step runs.</p>
+      <div class="diagram">
+<pre class="mermaid">
+sequenceDiagram
+  autonumber
+  participant R as Runner
+  participant FX as Fixtures
+  participant API as Site API
+  participant S as Step definitions
+  participant C as ctx
+  participant PO as Page objects
+  participant W as Website
+
+  R->>FX: build fixtures used by the scenario's steps
+  FX->>FX: block ads, Allure labels
+  FX->>API: apiUser: createAccount
+  FX->>C: new empty ctx
+  R->>S: Given I am on the home page
+  S->>PO: homePage.open()
+  PO->>W: load /
+  R->>S: Given a registered user exists
+  S->>C: ctx.user = apiUser
+  R->>S: When I log in with the user's credentials
+  S->>C: read ctx.user
+  S->>PO: loginPage.login(email, password)
+  PO->>W: fill and submit
+  R->>S: When I add a product to the cart
+  S->>PO: productsPage.addProductToCartAt(0)
+  S->>C: push to ctx.addedProducts
+  R->>S: ... checkout, pay, delete account
+  R->>FX: scenario finished
+  FX->>API: apiUser teardown: deleteAccount
+  R-->>R: report steps, attachments, result
+</pre>
+      </div>
+    </section>
+
+    <section id="folders">
+      <h2>Folder map</h2>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Path</th><th>Responsibility</th></tr></thead>
+          <tbody>
+            <tr><td class="path">features/</td><td>Scenarios in Gherkin, one file per area: authentication, products, cart, checkout, general.</td></tr>
+            <tr><td class="path">steps/</td><td>Step definitions. <code>common.steps.ts</code> holds navigation, users and account screens shared by every feature; the other files match the feature areas.</td></tr>
+            <tr><td class="path">fixtures/pomFixtures.ts</td><td>Extends playwright-bdd's <code>test</code> with page objects, users and <code>ctx</code>. Exports <code>Given</code>, <code>When</code>, <code>Then</code>.</td></tr>
+            <tr><td class="path">pages/, components/</td><td>Page objects, same as the POM framework.</td></tr>
+            <tr><td class="path">utils/</td><td><code>.env</code> loader, test data, API helper and reusable flows.</td></tr>
+            <tr><td class="path">playwright.config.ts</td><td><code>defineBddConfig()</code> points at features and steps; sets base URL, timeouts and the four reporters.</td></tr>
+            <tr><td class="path">global-setup.ts</td><td>Checks the <code>.env</code> login once before any scenario runs.</td></tr>
+            <tr><td class="path">.features-gen/</td><td>Generated tests. Gitignored. Never edit.</td></tr>
+            <tr><td class="path">testData/</td><td>Files used by scenarios, such as the Contact Us upload.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section id="gherkin">
+      <h2>Gherkin used</h2>
+      <p>The feature files use these Gherkin constructs. One example of each, taken from the real files:</p>
+      <h3>Feature, tags and Background</h3>
+<pre class="code"><code><span class="tg">@cart</span>
+<span class="kw-feature">Feature:</span> Cart
+  As a shopper
+  I want to add, review and remove products in my cart
+
+  <span class="kw-feature">Background:</span>
+    <span class="kw-given">Given</span> I am on the home page   <span class="c"># runs before every scenario in the file</span></code></pre>
+      <h3>Scenario Outline with Examples</h3>
+      <p>One scenario, run once per row. Each row is a separate test in reports and in the test explorer.</p>
+<pre class="code"><code>  <span class="tg">@TC9</span>
+  <span class="kw-feature">Scenario Outline:</span> Search for "&lt;term&gt;"
+    <span class="kw-when">When</span> I search for <span class="st">"&lt;term&gt;"</span>
+    <span class="kw-then">Then</span> every listed product name contains <span class="st">"&lt;term&gt;"</span>
+
+    <span class="kw-feature">Examples:</span>
+      | term  |
+      | Jeans |
+      | Saree |</code></pre>
+      <h3>Data table</h3>
+<pre class="code"><code>    <span class="kw-when">When</span> I fill in the contact form with:
+      | name    | PW Tester           |
+      | subject | Automation feedback |</code></pre>
+      <p>In the step, <code>table.rowsHash()</code> turns this into <code>{ name: 'PW Tester', subject: 'Automation feedback' }</code>.</p>
+
+      <h3>Tags</h3>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Tag</th><th>Meaning</th></tr></thead>
+          <tbody>
+            <tr><td class="path">@auth @products @cart @checkout @general</td><td>Feature area. Set on the Feature, inherited by all its scenarios.</td></tr>
+            <tr><td class="path">@smoke</td><td>One key scenario per area, 6 in total.</td></tr>
+            <tr><td class="path">@TC1 … @TC26</td><td>Test case number from the site's Test Cases page.</td></tr>
+            <tr><td class="path">@only @skip @fixme</td><td>Special tags handled by playwright-bdd: run only this, skip it, or mark it as known broken.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section id="context">
+      <h2>Context &amp; users</h2>
+      <p>Steps are separate functions, so they need a place to pass data along. Each scenario gets a fresh <code>ctx</code> object, the equivalent of Cucumber's "World".</p>
+<pre class="code"><code>interface ScenarioContext {
+  user?: Account;            <span class="c">// who the scenario acts as</span>
+  newUser?: UserData;        <span class="c">// full data when registering through the UI</span>
+  addedProducts: { name; price }[];  <span class="c">// checked later by cart steps</span>
+  download?: Download;       <span class="c">// the invoice</span>
+}</code></pre>
+      <p>One <code>Given</code> step decides which kind of user the scenario uses:</p>
+      <div class="users">
+        <div class="user">
+          <span class="chip env">envUser</span>
+          <p><code>Given I use the account from the environment file</code></p>
+          <p>Your <code>.env</code> account. Shared and never deleted.</p>
+          <p class="who">TC2, TC4, TC5</p>
+        </div>
+        <div class="user">
+          <span class="chip api">apiUser</span>
+          <p><code>Given a registered user exists</code></p>
+          <p>Created through the API before the scenario, deleted after it.</p>
+          <p class="who">TC2b, TC16, TC20</p>
+        </div>
+        <div class="user">
+          <span class="chip new">newUser</span>
+          <p><code>Given I have details for a new user</code></p>
+          <p>Unique data; the scenario registers it in the UI. Deleted afterwards as a safety net.</p>
+          <p class="who">TC1, TC14, TC15, TC23, TC24</p>
+        </div>
+      </div>
+      <p>Later steps such as <code>I log in with the user's credentials</code> and <code>I am logged in as the user</code> read <code>ctx.user</code>, so they work with all three kinds. If no user step ran, they fail with a message that says which step to add.</p>
+    </section>
+
+    <section id="catalogue">
+      <h2>Step catalogue</h2>
+      <p>All 79 step definitions. Search before writing a new step; reusing an existing sentence keeps the features consistent. The same list is printed by <code>npx bddgen export -c tests/CucumberFramework</code>.</p>
+      <div class="catalogue">
+        <div class="cat-controls">
+          <label for="step-search" class="cat-count">Search steps</label>
+          <input id="step-search" type="search" placeholder="e.g. cart, login, {string}" autocomplete="off">
+          <div class="filters" role="group" aria-label="Filter by file" id="step-filters"></div>
+          <span class="cat-count" id="step-count" aria-live="polite"></span>
+        </div>
+        <ul class="cat-list" id="step-list"></ul>
+      </div>
+    </section>
+
+    <section id="coverage">
+      <h2>Coverage map</h2>
+      <p>All 26 cases from the site's <a href="https://www.automationexercise.com/test_cases" target="_blank" rel="noopener">test cases page</a>, plus TC2b.</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Tag</th><th>Scenario</th><th>Feature</th><th>User</th></tr></thead>
+          <tbody>
+            <tr><td class="tc">@TC1</td><td>Register a new user</td><td class="path">authentication</td><td><span class="chip new">newUser</span></td></tr>
+            <tr><td class="tc">@TC2</td><td>Log in with correct email and password</td><td class="path">authentication</td><td><span class="chip env">envUser</span></td></tr>
+            <tr><td class="tc">@TC2b</td><td>Log in and delete the account</td><td class="path">authentication</td><td><span class="chip api">apiUser</span></td></tr>
+            <tr><td class="tc">@TC3</td><td>Log in with incorrect email and password</td><td class="path">authentication</td><td><span class="chip none">none</span></td></tr>
+            <tr><td class="tc">@TC4</td><td>Log out</td><td class="path">authentication</td><td><span class="chip env">envUser</span></td></tr>
+            <tr><td class="tc">@TC5</td><td>Register with an email that already exists</td><td class="path">authentication</td><td><span class="chip env">envUser</span></td></tr>
+            <tr><td class="tc">@TC6</td><td>Submit the Contact Us form</td><td class="path">general</td><td><span class="chip none">none</span></td></tr>
+            <tr><td class="tc">@TC7</td><td>Open the Test Cases page</td><td class="path">general</td><td><span class="chip none">none</span></td></tr>
+            <tr><td class="tc">@TC8</td><td>View all products and a product's details</td><td class="path">products</td><td><span class="chip none">none</span></td></tr>
+            <tr><td class="tc">@TC9</td><td>Search for "&lt;term&gt;" (Jeans, Saree)</td><td class="path">products</td><td><span class="chip none">none</span></td></tr>
+            <tr><td class="tc">@TC10</td><td>Subscribe from the home page</td><td class="path">general</td><td><span class="chip none">none</span></td></tr>
+            <tr><td class="tc">@TC11</td><td>Subscribe from the cart page</td><td class="path">general</td><td><span class="chip none">none</span></td></tr>
+            <tr><td class="tc">@TC12</td><td>Add products to the cart</td><td class="path">cart</td><td><span class="chip none">none</span></td></tr>
+            <tr><td class="tc">@TC13</td><td>Product quantity is kept in the cart</td><td class="path">cart</td><td><span class="chip none">none</span></td></tr>
+            <tr><td class="tc">@TC14</td><td>Place an order, registering during checkout</td><td class="path">checkout</td><td><span class="chip new">newUser</span></td></tr>
+            <tr><td class="tc">@TC15</td><td>Place an order, registering before checkout</td><td class="path">checkout</td><td><span class="chip new">newUser</span></td></tr>
+            <tr><td class="tc">@TC16</td><td>Place an order, logging in before checkout</td><td class="path">checkout</td><td><span class="chip api">apiUser</span></td></tr>
+            <tr><td class="tc">@TC17</td><td>Remove products from the cart</td><td class="path">cart</td><td><span class="chip none">none</span></td></tr>
+            <tr><td class="tc">@TC18</td><td>View category products</td><td class="path">products</td><td><span class="chip none">none</span></td></tr>
+            <tr><td class="tc">@TC19</td><td>View brand products</td><td class="path">products</td><td><span class="chip none">none</span></td></tr>
+            <tr><td class="tc">@TC20</td><td>Searched products stay in the cart after logging in</td><td class="path">cart</td><td><span class="chip api">apiUser</span></td></tr>
+            <tr><td class="tc">@TC21</td><td>Add a review on a product</td><td class="path">products</td><td><span class="chip none">none</span></td></tr>
+            <tr><td class="tc">@TC22</td><td>Add a recommended item to the cart</td><td class="path">cart</td><td><span class="chip none">none</span></td></tr>
+            <tr><td class="tc">@TC23</td><td>Checkout shows the address entered at registration</td><td class="path">checkout</td><td><span class="chip new">newUser</span></td></tr>
+            <tr><td class="tc">@TC24</td><td>Download the invoice after placing an order</td><td class="path">checkout</td><td><span class="chip new">newUser</span></td></tr>
+            <tr><td class="tc">@TC25</td><td>Scroll up using the arrow button</td><td class="path">general</td><td><span class="chip none">none</span></td></tr>
+            <tr><td class="tc">@TC26</td><td>Scroll up without the arrow button</td><td class="path">general</td><td><span class="chip none">none</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section id="run">
+      <h2>Running</h2>
+<pre class="code"><code>npm run test:cucumber                             <span class="c"># generate + run everything</span>
+npm run test:cucumber:headed                      <span class="c"># watch the browser</span>
+npm run test:cucumber -- --grep @TC13             <span class="c"># one scenario by tag</span>
+npm run test:cucumber -- -g "Remove products"     <span class="c"># by scenario name</span>
+npm run test:cucumber -- -g "Saree"               <span class="c"># one Examples row</span>
+npm run test:cucumber -- --grep "@cart|@checkout" <span class="c"># several tags</span>
+npm run test:cucumber -- --grep @smoke --debug    <span class="c"># step through in the inspector</span>
+npm run test:cucumber -- cart.feature             <span class="c"># one feature file</span></code></pre>
+      <p>Anything after <code>--</code> goes to <code>playwright test</code>. The script runs <code>bddgen</code> first, so feature edits are always picked up.</p>
+      <h3>Reports</h3>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Report</th><th>Where</th><th>Best for</th></tr></thead>
+          <tbody>
+            <tr><td>Cucumber HTML</td><td class="path">cucumber-report/index.html</td><td>Reading results as Given / When / Then; sharing with non-developers</td></tr>
+            <tr><td>Playwright HTML</td><td class="path">npm run report:cucumber</td><td>Debugging a failure with trace, video and screenshot</td></tr>
+            <tr><td>Allure</td><td class="path">npm run allure:cucumber</td><td>Grouping by feature and tag, history across runs</td></tr>
+            <tr><td>list</td><td>terminal</td><td>Live progress</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section id="extend">
+      <h2>Adding scenarios</h2>
+      <ol class="steps">
+        <li>Write the scenario in the matching <code>.feature</code> file. Reuse sentences from the step catalogue where you can.</li>
+        <li>Run <code>npm run bddgen</code>. For any sentence without a definition, it fails and prints a ready-made snippet.</li>
+        <li>Paste the snippet into the matching <code>steps/*.steps.ts</code> file.</li>
+        <li>Implement it with page-object calls and <code>expect</code>. If the page object lacks a locator or action, add it there, not in the step.</li>
+        <li>Tag the scenario (<code>@TCxx</code>, and <code>@smoke</code> if it is a key path) and run it with <code>--grep</code>.</li>
+      </ol>
+<pre class="code"><code><span class="c">// steps/cart.steps.ts</span>
+import { When, Then, expect } from '../fixtures/pomFixtures';
+
+Then('the cart total is {string}', async ({ cartPage }, total: string) =&gt; {
+  await expect(cartPage.grandTotal).toHaveText(total);   <span class="c">// locator lives in CartPage</span>
+});</code></pre>
+      <h3>Writing good steps</h3>
+      <ul>
+        <li>Describe what the user does or sees, not how: <code>I log in with the user's credentials</code>, not <code>I fill #email and click .btn</code>.</li>
+        <li>Put values in quotes so one step serves many scenarios: <code>the listing title is "Women - Tops Products"</code>.</li>
+        <li>Use one-step preconditions for setup a scenario does not test, such as <code>I add a product to the cart</code>, and detailed steps for what it does test.</li>
+        <li>Keep each sentence unique. Two patterns that match the same text make <code>bddgen</code> fail with an "ambiguous step" error.</li>
+      </ul>
+    </section>
+
+    <section id="pitfalls">
+      <h2>Pitfalls</h2>
+      <ul class="pitfalls">
+        <li><strong>Running stale tests.</strong><span>Plain <code>npx playwright test</code> runs the last generated files. After editing a feature, run <code>npm run bddgen</code> or use <code>npm run test:cucumber</code>.</span></li>
+        <li><strong>Feature-file line numbers do not work as filters.</strong><span><code>cart.feature:29</code> refers to the generated file. Filter by tag or scenario name.</span></li>
+        <li><strong>Data does not carry between scenarios.</strong><span><code>ctx</code> is new for every scenario, and scenarios run in parallel in any order. Each scenario must set up what it needs.</span></li>
+        <li><strong>Selectors creeping into steps.</strong><span>A step that calls <code>page.locator(...)</code> works today and breaks with the next markup change. Keep locators in page objects.</span></li>
+        <li><strong>Test explorer is empty in VS Code.</strong><span>Enable <code>tests/CucumberFramework/playwright.config.ts</code> in the Playwright config selector and run <code>npm run bddgen</code> once.</span></li>
+      </ul>
+    </section>
+
+    <section id="compare">
+      <h2>vs POM framework</h2>
+      <p>The same test case in both frameworks. Both drive the same page objects.</p>
+      <div class="pair">
+        <div>
+          <p class="label">tests/Framework (spec)</p>
+<pre class="code"><code>test('TC17: Remove Products From Cart',
+  async ({ homePage, productsPage, cartPage }) =&gt; {
+  await homePage.header.goToProducts();
+  await productsPage.addProductToCartAt(0);
+  await productsPage.continueShopping();
+  await homePage.header.goToCart();
+  await cartPage.removeProduct(1);
+  await expect(cartPage.emptyCartMessage)
+    .toBeVisible();
+});</code></pre>
+        </div>
+        <div>
+          <p class="label">tests/CucumberFramework (feature)</p>
+<pre class="code"><code><span class="tg">@TC17</span>
+<span class="kw-feature">Scenario:</span> Remove products from the cart
+  <span class="kw-when">When</span> I click <span class="st">"Products"</span> in the header
+  <span class="kw-when">And</span> I add the product at position 1 to the cart
+  <span class="kw-when">And</span> I continue shopping
+  <span class="kw-when">And</span> I click <span class="st">"Cart"</span> in the header
+  <span class="kw-when">When</span> I remove the added products from the cart
+  <span class="kw-then">Then</span> the cart is empty</code></pre>
+        </div>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th></th><th>POM specs</th><th>Cucumber</th></tr></thead>
+          <tbody>
+            <tr><td>Readable by non-developers</td><td>Partly</td><td>Yes</td></tr>
+            <tr><td>Files to change for a new test</td><td>1 spec</td><td>Feature, plus steps if new sentences</td></tr>
+            <tr><td>Extra build step</td><td>None</td><td><code>bddgen</code></td></tr>
+            <tr><td>Reuse</td><td>Page objects and flows</td><td>Page objects, flows and sentences</td></tr>
+            <tr><td>Debugging</td><td>Direct</td><td>One level of indirection (sentence → step)</td></tr>
+            <tr><td>Best when</td><td>Engineers own the tests</td><td>Testers, BAs or product owners write or review scenarios</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+</div>
+
+<script>
+(function () {
+  var files = {
+    common: ["Given I am on the home page","Then the home page is visible","When I click {string} in the header","When I scroll to the bottom of the page","When I scroll to the top of the page","Given I use the account from the environment file","Given a registered user exists","Given I have details for a new user","When I log in with the user's credentials","Then I am logged in as the user","Then the account is created","Then the account is deleted","When I continue"],
+    auth: ["Then the login form is visible","Then the signup form is visible","When I log in with email {string} and password {string}","Then I see the login error {string}","Then I am on the login page","When I start signing up with the user's name and email","Then I see the signup error {string}","Then the account information form is visible","When I fill in the account information","When I fill in the address information","When I submit the account form","When I register the user through the signup form"],
+    products: ["Then the listing title is {string}","Then products are listed","When I view the product at position {int}","Then I see the product's name, category, price, availability, condition and brand","When I search for {string}","Then every listed product name contains {string}","Then the category sidebar is visible","When I open the {string} category {string}","Then the brands sidebar is visible","When I open the brand {string}","Then the {string} section is visible","When I submit a review {string} as {string}","Then I see the review confirmation {string}"],
+    cart: ["When I add the product at position {int} to the cart","When I add a product to the cart","When I add every listed product to the cart","When I continue shopping","When I view the cart from the pop-up","When I open product {int} from the home page","Then the product details page is shown","When I set the quantity to {int}","When I add the product to the cart from its details page","When I add the first recommended product to the cart","Then the recommended items are visible","Then the cart page is shown","Then the cart contains the added products","Then the cart contains exactly the added products","Then each cart row has the listed price, quantity 1 and a matching total","Then product {int} is in the cart with quantity {int}","When I remove the added products from the cart","Then the cart is empty"],
+    checkout: ["When I proceed to checkout","When I choose to register or log in","Then the address details and order review are shown","Then the order review lists {int} product(s)","Then the {word} address matches the registration details","When I place the order with the comment {string}","When I pay with a valid card","Then the order is confirmed","When I download the invoice","Then the invoice file is downloaded"],
+    general: ["When I fill in the contact form with:","When I attach the file {string}","When I submit the contact form and confirm","Then I see the contact message {string}","When I click the Home button on the contact page","Then I am on the test cases page","When I scroll down to the footer","Then the subscription section is visible","Then the subscription section is in view","When I subscribe with a new email address","Then I see the subscription message {string}","When I click the scroll-up arrow","Then the page banner is in view"]
+  };
+  var steps = [];
+  Object.keys(files).forEach(function (f) {
+    files[f].forEach(function (s) {
+      var i = s.indexOf(' ');
+      steps.push({ kw: s.slice(0, i), text: s.slice(i + 1), file: f });
+    });
+  });
+
+  var list = document.getElementById('step-list');
+  var input = document.getElementById('step-search');
+  var count = document.getElementById('step-count');
+  var filterBox = document.getElementById('step-filters');
+  var active = 'all';
+
+  ['all'].concat(Object.keys(files)).forEach(function (f) {
+    var b = document.createElement('button');
+    b.type = 'button';
+    b.textContent = f === 'all' ? 'All' : f + '.steps.ts';
+    b.setAttribute('aria-pressed', f === active ? 'true' : 'false');
+    b.addEventListener('click', function () {
+      active = f;
+      Array.prototype.forEach.call(filterBox.children, function (x) { x.setAttribute('aria-pressed', 'false'); });
+      b.setAttribute('aria-pressed', 'true');
+      render();
+    });
+    filterBox.appendChild(b);
+  });
+
+  function esc(s) { return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
+  function fmt(t) { return esc(t).replace(/\{(string|int|word|float)\}/g, '<span class="p">{$1}</span>'); }
+
+  function render() {
+    var q = input.value.trim().toLowerCase();
+    var shown = steps.filter(function (s) {
+      return (active === 'all' || s.file === active) &&
+        (!q || (s.kw + ' ' + s.text + ' ' + s.file).toLowerCase().indexOf(q) !== -1);
+    });
+    list.innerHTML = shown.length ? shown.map(function (s) {
+      return '<li><span class="k ' + s.kw + '">' + s.kw + '</span><span class="t">' + fmt(s.text) + '</span><span class="f">' + s.file + '</span></li>';
+    }).join('') : '<li class="cat-empty">No step matches. Write a new one and run npm run bddgen for a snippet.</li>';
+    count.textContent = shown.length + ' of ' + steps.length + ' steps';
+  }
+  input.addEventListener('input', render);
+  render();
+})();
+</script>
+
+<!-- Draws the diagrams when the file is opened outside claude.ai. -->
+<script type="module">
+  import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11.4.1/dist/mermaid.esm.min.mjs';
+  const dark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+  mermaid.initialize({ startOnLoad: true, securityLevel: 'strict', theme: dark ? 'dark' : 'neutral' });
+</script>
+</body></html>

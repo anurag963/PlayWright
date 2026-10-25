@@ -1,0 +1,705 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif}img{max-width:100%}[hidden]{display:none!important}</style>
+</head>
+<body>
+<title>Automation Exercise API Framework</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700&family=Instrument+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: sibling of the POM and Cucumber guides. Sticky contents rail left, one reading column; HTTP method chips (GET / POST / PUT / DELETE) are this page's signature detail. */
+:root {
+  --bg: #f5f7f8;
+  --surface: #ffffff;
+  --fg: #172126;
+  --muted: #55646b;
+  --line: #d7e0e3;
+  --accent: #1d6f86;       /* request-teal: the API suite's colour among the three guides */
+  --accent-soft: #e0eff3;
+  --get: #1f7a52;   --get-soft: #e2f1e8;
+  --post: #2d5b9a;  --post-soft: #e3ecf8;
+  --put: #9a5b00;   --put-soft: #fbefd9;
+  --del: #b02a3c;   --del-soft: #fae4e7;
+  --warn: #9a5b00;  --warn-soft: #fbefd9;
+  --str: #6b5a12;
+  --code-bg: #edf2f3;
+  --font-display: "Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  --font-body: "Instrument Sans", "Segoe UI", system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0f1517; --surface: #161e21; --fg: #e2eaed; --muted: #98a8ae; --line: #29363a;
+    --accent: #6cc4dc; --accent-soft: #18323a;
+    --get: #5cc893; --get-soft: #1a3326; --post: #8db4ec; --post-soft: #1b2738;
+    --put: #f0b456; --put-soft: #362a14; --del: #ff8e9c; --del-soft: #3a1b21;
+    --warn: #f0b456; --warn-soft: #362a14; --str: #e2cf7a; --code-bg: #1b2427;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0f1517; --surface: #161e21; --fg: #e2eaed; --muted: #98a8ae; --line: #29363a;
+  --accent: #6cc4dc; --accent-soft: #18323a;
+  --get: #5cc893; --get-soft: #1a3326; --post: #8db4ec; --post-soft: #1b2738;
+  --put: #f0b456; --put-soft: #362a14; --del: #ff8e9c; --del-soft: #3a1b21;
+  --warn: #f0b456; --warn-soft: #362a14; --str: #e2cf7a; --code-bg: #1b2427;
+  color-scheme: dark;
+}
+
+body {
+  background: var(--bg); color: var(--fg);
+  font: 16px/1.6 var(--font-body);
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+.shell { max-width: 1120px; margin: 0 auto; display: grid; grid-template-columns: 210px minmax(0, 1fr); gap: 48px; padding-block: 48px 80px; }
+@media (max-width: 860px) { .shell { grid-template-columns: minmax(0, 1fr); gap: 24px; padding-block: 28px 56px; } .toc { display: none; } }
+
+.toc { position: sticky; top: calc(env(safe-area-inset-top, 0px) + 24px); align-self: start; font-size: 14px; }
+.toc p { font: 600 11px/1 var(--font-body); letter-spacing: .08em; text-transform: uppercase; color: var(--muted); margin: 0 0 12px; }
+.toc ol { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
+.toc a { color: var(--muted); text-decoration: none; }
+.toc a:hover, .toc a:focus-visible { color: var(--accent); }
+
+main { min-width: 0; max-width: 760px; }
+header.top { display: grid; gap: 12px; margin-bottom: 40px; }
+.eyebrow { font: 500 13px/1 var(--font-mono); color: var(--accent); }
+h1 { font: 700 clamp(30px, 5vw, 44px)/1.1 var(--font-display); margin: 0; text-wrap: balance; letter-spacing: -.01em; }
+.lede { color: var(--muted); margin: 0; font-size: 18px; max-width: 62ch; }
+.stats { display: flex; flex-wrap: wrap; gap: 8px 20px; margin-top: 8px; font: 500 13px/1.4 var(--font-mono); color: var(--muted); }
+.stats b { color: var(--fg); font-weight: 500; }
+
+section { padding-block: 32px; border-top: 1px solid var(--line); scroll-margin-top: 16px; }
+h2 { font: 600 26px/1.2 var(--font-display); margin: 0 0 12px; text-wrap: balance; }
+h3 { font: 600 17px/1.3 var(--font-body); margin: 28px 0 8px; }
+p { margin: 0 0 14px; max-width: 68ch; }
+ul { margin: 0 0 14px; padding-left: 22px; display: grid; gap: 4px; }
+a { color: var(--accent); }
+code { font: 0.86em var(--font-mono); background: var(--code-bg); padding: 1px 5px; border-radius: 4px; overflow-wrap: anywhere; }
+pre.code { font: 13px/1.6 var(--font-mono); background: var(--code-bg); padding: 16px 18px; border-radius: 8px; overflow-x: auto; margin: 0 0 16px; }
+pre.code code { background: none; padding: 0; font-size: inherit; overflow-wrap: normal; }
+.c { color: var(--muted); }
+.st { color: var(--str); }
+
+.diagram { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 20px; overflow-x: auto; margin: 4px 0 16px; }
+.diagram pre.mermaid { margin: 0; background: none; display: flex; justify-content: center; min-width: 560px; }
+.caption { font-size: 14px; color: var(--muted); margin-top: -6px; }
+
+.pair { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 12px; margin-bottom: 16px; }
+.pair > div { min-width: 0; }
+.pair .label { font: 600 11px/1 var(--font-body); letter-spacing: .07em; text-transform: uppercase; color: var(--muted); margin: 0 0 8px; }
+.pair pre.code { margin: 0; height: 100%; box-sizing: border-box; }
+@media (max-width: 700px) { .pair { grid-template-columns: minmax(0, 1fr); } }
+
+.table-wrap { overflow-x: auto; margin: 4px 0 16px; border: 1px solid var(--line); border-radius: 10px; background: var(--surface); }
+table { border-collapse: collapse; width: 100%; font-size: 14px; }
+th, td { text-align: left; padding: 9px 12px; border-bottom: 1px solid var(--line); vertical-align: top; }
+th { font: 600 11px/1.3 var(--font-body); letter-spacing: .07em; text-transform: uppercase; color: var(--muted); background: var(--bg); }
+tr:last-child td { border-bottom: none; }
+td.tc, td.path { font: 13px var(--font-mono); white-space: nowrap; }
+td.rc { font: 13px var(--font-mono); color: var(--muted); white-space: nowrap; }
+tr.group td { background: var(--bg); font: 600 12px/1.3 var(--font-body); letter-spacing: .04em; color: var(--fg); }
+
+.m { display: inline-block; min-width: 56px; text-align: center; font: 500 11px/1 var(--font-mono); letter-spacing: .03em; padding: 4px 6px; border-radius: 4px; }
+.m.get { color: var(--get); background: var(--get-soft); }
+.m.post { color: var(--post); background: var(--post-soft); }
+.m.put { color: var(--put); background: var(--put-soft); }
+.m.del { color: var(--del); background: var(--del-soft); }
+
+.chip { display: inline-block; font: 500 12px/1 var(--font-mono); padding: 4px 7px; border-radius: 999px; white-space: nowrap; }
+.chip.env { background: var(--warn-soft); color: var(--warn); }
+.chip.api { background: var(--post-soft); color: var(--post); }
+.chip.new { background: var(--get-soft); color: var(--get); }
+.chip.none { background: var(--code-bg); color: var(--muted); }
+.chip.skip { background: var(--warn-soft); color: var(--warn); }
+.chip.ok { background: var(--get-soft); color: var(--get); }
+
+.users { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin: 8px 0 16px; }
+@media (max-width: 640px) { .users { grid-template-columns: minmax(0, 1fr); } }
+.user { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 16px; display: grid; gap: 8px; align-content: start; }
+.user p { margin: 0; font-size: 14px; }
+.user .who { font-size: 13px; color: var(--muted); }
+
+.decisions { display: grid; gap: 14px; margin: 8px 0 0; padding: 0; list-style: none; }
+.decisions li { display: grid; gap: 4px; padding-left: 14px; border-left: 2px solid var(--line); }
+.decisions strong { font-weight: 600; }
+.decisions span { color: var(--muted); font-size: 15px; }
+
+ol.steps { padding-left: 22px; margin: 0 0 16px; display: grid; gap: 6px; }
+@media (prefers-reduced-motion: no-preference) { html { scroll-behavior: smooth; } }
+a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 2px; }
+</style>
+
+<div class="shell">
+  <nav class="toc" aria-label="Contents">
+    <p>Contents</p>
+    <ol>
+      <li><a href="#overview">Overview</a></li>
+      <li><a href="#architecture">Architecture</a></li>
+      <li><a href="#pipeline">Request pipeline</a></li>
+      <li><a href="#lifecycle">Test lifecycle</a></li>
+      <li><a href="#classes">Client classes</a></li>
+      <li><a href="#folders">Folder map</a></li>
+      <li><a href="#responsecode">The responseCode rule</a></li>
+      <li><a href="#walkthrough">Code walkthrough</a></li>
+      <li><a href="#users">Test users</a></li>
+      <li><a href="#endpoints">Endpoints</a></li>
+      <li><a href="#coverage">Coverage map</a></li>
+      <li><a href="#decisions">Design decisions</a></li>
+      <li><a href="#extend">Adding tests</a></li>
+      <li><a href="#run">Running &amp; reports</a></li>
+      <li><a href="#compare">vs UI framework</a></li>
+    </ol>
+  </nav>
+
+  <main>
+    <header class="top">
+      <span class="eyebrow">tests/ApiFramework</span>
+      <h1>Automation Exercise API Framework</h1>
+      <p class="lede">API-level tests for automationexercise.com that cover the scenarios automated in the POM framework. No browser starts: each test sends HTTP requests through Playwright's <code>request</code> fixture, and the whole suite runs in under half a minute.</p>
+      <div class="stats"><span><b>37</b> tests</span><span><b>5</b> spec files</span><span><b>7</b> clients</span><span><b>14</b> REST endpoints</span><span><b>8</b> storefront endpoints</span><span><b>~26 s</b> full run</span></div>
+    </header>
+
+    <section id="overview">
+      <h2>Overview</h2>
+      <p>The site offers a public JSON API for products, brands, search and accounts. It has no API for the cart, login session, checkout or contact form. Those flows run on server-rendered pages and small AJAX endpoints. The framework covers both with two kinds of client:</p>
+      <ul>
+        <li><strong>REST clients</strong> call <code>/api/*</code> and parse the JSON reply.</li>
+        <li><strong>Storefront clients</strong> call the same URLs the browser uses. They keep session cookies, send the CSRF token Django forms require, and read results out of the returned HTML.</li>
+      </ul>
+      <p>The rest follows the POM framework's patterns:</p>
+      <ul>
+        <li><strong>Fixtures</strong> give each test ready-made clients and test users, so specs never call <code>new CartClient(request)</code>.</li>
+        <li><strong>One method per endpoint</strong>, named after what it does: <code>searchProduct(term)</code>, <code>cart.add(id, qty)</code>, <code>checkout.pay(card)</code>.</li>
+        <li><strong>Every request is an Allure step</strong>, with the payload and response attached and passwords, card numbers and tokens masked.</li>
+        <li><strong>A <code>.env</code> file</strong> holds the base URL and the shared login. It is gitignored.</li>
+      </ul>
+    </section>
+
+    <section id="architecture">
+      <h2>Architecture</h2>
+      <p>Each layer only talks to the layer below it. Specs never build URLs or parse HTML, and clients never assert on business rules.</p>
+      <div class="diagram">
+<pre class="mermaid">
+flowchart TB
+  subgraph L1["Test layer"]
+    SPECS["specs/*.api.spec.ts<br/>auth · products · cart · checkout · general"]
+  end
+  subgraph L2["Glue layer"]
+    FIX["fixtures/apiFixtures.ts<br/>clients · test users · Allure labels · toHaveResponseCode"]
+    SCHEMA["models/schemas.ts<br/>response shapes for toMatchObject"]
+  end
+  subgraph L3["Client layer"]
+    REST["clients/api/<br/>ProductsApi · BrandsApi · AccountApi"]
+    WEB["clients/web/<br/>AuthClient · CartClient · CheckoutClient · SiteClient"]
+  end
+  subgraph L4["Core"]
+    RC["core/RestClient<br/>JSON from text body"]
+    WC["core/WebClient<br/>CSRF token · Referer · pages"]
+    BC["core/BaseClient<br/>Allure step · masked attachments"]
+  end
+  subgraph L5["Support"]
+    ENV["utils/env.ts<br/>reads .env"]
+    DATA["utils/dataFactory.ts<br/>unique users, cards"]
+    HTML["utils/htmlParser.ts<br/>cart rows · addresses · login name"]
+  end
+  PW["Playwright request context<br/>one per test, holds cookies"]
+  SITE[("automationexercise.com")]
+
+  SPECS --> FIX
+  SPECS --> SCHEMA
+  FIX --> REST
+  FIX --> WEB
+  FIX --> DATA
+  FIX --> ENV
+  REST --> RC
+  WEB --> WC
+  WEB --> HTML
+  RC --> BC
+  WC --> BC
+  BC --> PW
+  PW --> SITE
+</pre>
+      </div>
+      <p class="caption">Arrows mean "uses". The config and global setup sit outside this picture; they run before any test, as shown in the lifecycle below.</p>
+    </section>
+
+    <section id="pipeline">
+      <h2>Request pipeline</h2>
+      <p>Every request, REST or storefront, ends in <code>BaseClient.send()</code>. Form posts take one extra round trip first, to fetch a CSRF token from the page that holds the form.</p>
+      <div class="diagram">
+<pre class="mermaid">
+flowchart LR
+  A["Spec calls a client method<br/>e.g. checkout.pay(card)"] --> B{"Storefront form?"}
+  B -- "yes" --> C["GET the form page<br/>read csrfmiddlewaretoken"]
+  C --> D["Add token + Referer header"]
+  B -- "no" --> E["BaseClient.send()"]
+  D --> E
+  E --> F["Allure step: METHOD path<br/>attach masked request"]
+  F --> G["request.fetch()<br/>follows redirects, keeps cookies"]
+  G --> H["Attach response<br/>JSON always, HTML if short"]
+  H --> I{"Which client?"}
+  I -- "RestClient" --> J["Parse JSON<br/>return httpStatus + body"]
+  I -- "WebClient" --> K["Return status, final URL, HTML<br/>parsed by htmlParser"]
+</pre>
+      </div>
+      <p class="caption">The final URL matters: a successful payment redirects to <code>/payment_done/{amount}</code>, and <code>checkout.pay()</code> reads the order total from it.</p>
+    </section>
+
+    <section id="lifecycle">
+      <h2>Test lifecycle</h2>
+      <p>What happens from <code>npm run test:api</code> to the report, using TC24 (download invoice after purchase) as the example. Fixtures are created lazily: a test only gets the fixtures it names in its parameters, plus the automatic ones.</p>
+      <div class="diagram">
+<pre class="mermaid">
+sequenceDiagram
+  autonumber
+  participant CLI as npx playwright test
+  participant GS as global-setup
+  participant FX as fixtures
+  participant T as TC24 spec
+  participant CL as Clients
+  participant SITE as Website + API
+  participant REP as Reporters
+
+  CLI->>GS: run once
+  GS->>SITE: POST /api/verifyLogin (.env user)
+  SITE-->>GS: responseCode 200
+  CLI->>FX: start test, build fixtures
+  FX->>FX: allureLabels (auto): epic, feature, TC tag
+  FX->>SITE: apiUser: POST /api/createAccount
+  SITE-->>FX: responseCode 201
+  FX->>T: inject productsApi, auth, cart, checkout, apiUser
+  T->>CL: productsApi.getAllProducts()
+  CL->>SITE: GET /api/productsList
+  T->>CL: auth.login(email, password)
+  CL->>SITE: GET /login (token), POST /login
+  SITE-->>CL: 302 to / with session cookie
+  T->>CL: cart.add(first, 2), cart.add(second)
+  CL->>SITE: GET /add_to_cart/{id}?quantity=2
+  T->>CL: checkout.pay(card)
+  CL->>SITE: GET /payment (token), POST /payment
+  SITE-->>CL: 302 to /payment_done/{amount}
+  T->>T: expect amount = cart total
+  T->>CL: checkout.downloadInvoice(amount)
+  CL->>SITE: GET /download_invoice/{amount}
+  T->>T: expect invoice text names user and amount
+  T-->>FX: test body finished
+  FX->>SITE: apiUser teardown: DELETE /api/deleteAccount
+  FX-->>REP: result, Allure steps with request/response, trace on failure
+  REP-->>CLI: list output, HTML report, allure-results-api
+</pre>
+      </div>
+    </section>
+
+    <section id="classes">
+      <h2>Client classes</h2>
+      <p>Every client inherits from one of two core classes, which both inherit from <code>BaseClient</code>. Specs only see the public methods on the right-hand side.</p>
+      <div class="diagram">
+<pre class="mermaid">
+classDiagram
+  direction LR
+  class BaseClient {
+    &lt;&lt;abstract&gt;&gt;
+    #request APIRequestContext
+    #send(method, path, options)
+  }
+  class RestClient {
+    &lt;&lt;abstract&gt;&gt;
+    #call(method, path, options) ApiResult
+  }
+  class WebClient {
+    &lt;&lt;abstract&gt;&gt;
+    #getPage(path) HtmlPage
+    #submitForm(formPage, action, fields, files)
+  }
+  class ProductsApi {
+    +getAllProducts()
+    +postToProductsList()
+    +searchProduct(term)
+  }
+  class BrandsApi {
+    +getAllBrands()
+    +putToBrandsList()
+  }
+  class AccountApi {
+    +createAccount(user)
+    +verifyLogin(credentials)
+    +updateAccount(user)
+    +deleteAccount(email, password)
+    +getUserDetailByEmail(email)
+  }
+  class AuthClient {
+    +login(email, password)
+    +logout()
+    +currentUser()
+  }
+  class CartClient {
+    +add(productId, quantity)
+    +remove(productId)
+    +view()
+    +toAmount(price)$
+  }
+  class CheckoutClient {
+    +view()
+    +pay(card)
+    +downloadInvoice(amount)
+  }
+  class SiteClient {
+    +open(path)
+    +submitContactForm(form)
+  }
+  BaseClient <|-- RestClient
+  BaseClient <|-- WebClient
+  RestClient <|-- ProductsApi
+  RestClient <|-- BrandsApi
+  RestClient <|-- AccountApi
+  WebClient <|-- AuthClient
+  WebClient <|-- CartClient
+  WebClient <|-- CheckoutClient
+  WebClient <|-- SiteClient
+</pre>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Client</th><th>Talks to</th><th>Returns</th></tr></thead>
+          <tbody>
+            <tr><td class="path">ProductsApi</td><td class="path">/api/productsList, /api/searchProduct</td><td><code>{ httpStatus, body: { responseCode, products } }</code></td></tr>
+            <tr><td class="path">BrandsApi</td><td class="path">/api/brandsList</td><td><code>{ httpStatus, body: { responseCode, brands } }</code></td></tr>
+            <tr><td class="path">AccountApi</td><td class="path">/api/createAccount, verifyLogin, updateAccount, deleteAccount, getUserDetailByEmail</td><td><code>{ httpStatus, body: { responseCode, message | user } }</code></td></tr>
+            <tr><td class="path">AuthClient</td><td class="path">/login, /logout, /</td><td>name in "Logged in as", final URL, page text</td></tr>
+            <tr><td class="path">CartClient</td><td class="path">/add_to_cart, /delete_cart, /view_cart</td><td>cart rows: id, name, category, price, quantity, total</td></tr>
+            <tr><td class="path">CheckoutClient</td><td class="path">/checkout, /payment, /download_invoice</td><td>delivery and billing addresses, order amount, invoice file</td></tr>
+            <tr><td class="path">SiteClient</td><td class="path">any page, /contact_us</td><td>status, page text</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section id="folders">
+      <h2>Folder map</h2>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Path</th><th>Responsibility</th></tr></thead>
+          <tbody>
+            <tr><td class="path">playwright.config.ts</td><td>Exports <code>apiProject</code> (test folder, base URL from <code>.env</code>, retries, trace on failure) and the list, HTML and Allure reporters. No browser settings.</td></tr>
+            <tr><td class="path">global-setup.ts</td><td>Runs once before the suite. Checks the <code>.env</code> login with <code>/api/verifyLogin</code> and stops the run with a clear message if it is wrong.</td></tr>
+            <tr><td class="path">.env / .env.example</td><td><code>BASE_URL</code>, <code>USER_NAME</code>, <code>USER_EMAIL</code>, <code>USER_PASSWORD</code>. Only the example file is committed.</td></tr>
+            <tr><td class="path">core/</td><td><code>BaseClient</code>, <code>RestClient</code>, <code>WebClient</code>: sending, logging, JSON parsing, CSRF form posts.</td></tr>
+            <tr><td class="path">clients/api/</td><td>One class per REST resource, one method per endpoint in the site's API list.</td></tr>
+            <tr><td class="path">clients/web/</td><td>Storefront flows that have no JSON API: login session, cart, checkout, contact form.</td></tr>
+            <tr><td class="path">models/</td><td><code>types.ts</code> for response bodies, cart rows and addresses; <code>schemas.ts</code> for contract checks.</td></tr>
+            <tr><td class="path">fixtures/apiFixtures.ts</td><td>Extends Playwright's <code>test</code> and <code>expect</code>. Specs import both from here, not from <code>@playwright/test</code>.</td></tr>
+            <tr><td class="path">utils/env.ts</td><td>Loads <code>.env</code> with dotenv and fails fast if a required key is missing.</td></tr>
+            <tr><td class="path">utils/dataFactory.ts</td><td>Builds unique users (timestamped email) and payment card data.</td></tr>
+            <tr><td class="path">utils/htmlParser.ts</td><td>Small extractors for the site's HTML: CSRF token, logged-in name, cart rows, checkout addresses, page text.</td></tr>
+            <tr><td class="path">specs/</td><td>The tests, grouped by the same feature areas as the UI specs.</td></tr>
+            <tr><td class="path">testData/</td><td>The Contact Us upload file.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section id="responsecode">
+      <h2>The responseCode rule</h2>
+      <p>The site's API answers <strong>HTTP 200 to every request</strong>, even failed ones, and labels its JSON as <code>text/html</code>. The real outcome is the <code>responseCode</code> field in the body. A test that only checked the HTTP status would pass for a failed request.</p>
+      <div class="diagram">
+<pre class="mermaid">
+flowchart LR
+  R["Response"] --> H{"HTTP status = 200?"}
+  H -- "no" --> F1["fail: transport error"]
+  H -- "yes" --> C{"body.responseCode<br/>= expected?"}
+  C -- "no" --> F2["fail: shows HTTP, code and message"]
+  C -- "yes" --> M{"message given?"}
+  M -- "no" --> P["pass"]
+  M -- "yes" --> MM{"body.message<br/>= expected?"}
+  MM -- "yes" --> P
+  MM -- "no" --> F2
+</pre>
+      </div>
+      <p>The custom matcher <code>toHaveResponseCode</code> in the fixtures file runs this check:</p>
+      <div class="pair">
+        <div>
+          <p class="label">Response from POST /api/createAccount</p>
+<pre class="code"><code><span class="c">HTTP/2 200
+content-type: text/html</span>
+
+{ "responseCode": 400,
+  "message": <span class="st">"Email already exists!"</span> }</code></pre>
+        </div>
+        <div>
+          <p class="label">Assertion in auth.api.spec.ts › TC5</p>
+<pre class="code"><code>expect(
+  await accountApi.createAccount(duplicate)
+).toHaveResponseCode(
+  400, <span class="st">'Email already exists!'</span>
+);</code></pre>
+        </div>
+      </div>
+      <p>Response shapes are checked separately with <code>toMatchObject(productSchema)</code>. A missing field or a wrong type fails the test; extra fields are allowed so additions to the API don't break the suite.</p>
+    </section>
+
+    <section id="walkthrough">
+      <h2>Code walkthrough</h2>
+      <h3>1. A spec asks for what it needs</h3>
+      <p>Fixture names in the test's parameters decide what gets built. Here the test gets four clients and a throwaway user that already exists on the site.</p>
+<pre class="code"><code>import { test, expect } from '../fixtures/apiFixtures';
+
+test('TC24: Download Invoice after purchase order', async ({
+  productsApi, auth, cart, checkout, apiUser,
+}) =&gt; {
+  const [first, second] = (await productsApi.getAllProducts()).body.products;
+  await auth.login(apiUser.email, apiUser.password);
+  await cart.add(first.id, 2);
+  await cart.add(second.id);
+  const order = await checkout.pay(createCard());
+  expect(order.amount).toBe(String(expectedTotal));
+  ...
+});</code></pre>
+      <h3>2. The fixture builds and cleans up</h3>
+      <p>Code before <code>use()</code> is setup; code after it is teardown. Teardown runs even if the test fails. All clients share the test's <code>request</code>, so they share one session.</p>
+<pre class="code"><code>cart: async ({ request }, use) =&gt; use(new CartClient(request)),
+
+apiUser: async ({ accountApi }, use) =&gt; {
+  const user = createUser();                     <span class="c">// unique email per run</span>
+  await accountApi.createAccount(user);          <span class="c">// setup via API</span>
+  await use(user);                               <span class="c">// test runs here</span>
+  await accountApi.deleteAccount(user.email, user.password);  <span class="c">// teardown</span>
+},</code></pre>
+      <h3>3. The client hides the HTTP details</h3>
+      <p><code>pay()</code> doesn't know about tokens or headers. <code>submitForm()</code> in <code>WebClient</code> fetches the CSRF token and sets the Referer.</p>
+<pre class="code"><code>export class CheckoutClient extends WebClient {
+  async pay(card: CardData) {
+    const page = await this.submitForm('/payment', '/payment', {
+      name_on_card: card.nameOnCard,
+      card_number: card.cardNumber,
+      ...
+    });
+    return {
+      amount: page.url.match(/\/payment_done\/(\d+)/)?.[1] ?? null,
+      text: pageText(page.html),
+    };
+  }
+}</code></pre>
+    </section>
+
+    <section id="users">
+      <h2>Test users</h2>
+      <p>Same three kinds of user as the UI framework, so tests that delete an account never touch the shared one:</p>
+      <div class="users">
+        <div class="user">
+          <span class="chip env">envUser</span>
+          <p>Your account from <code>.env</code>. Shared by all runs and <strong>never deleted</strong>.</p>
+          <p class="who">TC2, TC3, TC4, TC5</p>
+        </div>
+        <div class="user">
+          <span class="chip api">apiUser</span>
+          <p>Created through <code>/api/createAccount</code> before the test, deleted after it.</p>
+          <p class="who">TC2b, TC16, TC20, TC23, TC24, update account</p>
+        </div>
+        <div class="user">
+          <span class="chip new">newUser</span>
+          <p>Unique data only; the test registers it itself. Deleted after the test in case the test failed early.</p>
+          <p class="who">TC1, TC14, TC15</p>
+        </div>
+      </div>
+      <p>Each test also gets its own request context, so its cookies, and with them its cart and login, are never shared with another test running in parallel.</p>
+    </section>
+
+    <section id="endpoints">
+      <h2>Endpoints</h2>
+      <p>The first group is the site's <a href="https://www.automationexercise.com/api_list" target="_blank" rel="noopener">API list</a>. The second is the storefront's own endpoints, for flows with no JSON API.</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Method</th><th>Path</th><th>Client method</th><th>Expected</th></tr></thead>
+          <tbody>
+            <tr class="group"><td colspan="4">REST API · RestClient</td></tr>
+            <tr><td><span class="m get">GET</span></td><td class="path">/api/productsList</td><td><code>getAllProducts()</code></td><td class="rc">200</td></tr>
+            <tr><td><span class="m post">POST</span></td><td class="path">/api/productsList</td><td><code>postToProductsList()</code></td><td class="rc">405</td></tr>
+            <tr><td><span class="m get">GET</span></td><td class="path">/api/brandsList</td><td><code>getAllBrands()</code></td><td class="rc">200</td></tr>
+            <tr><td><span class="m put">PUT</span></td><td class="path">/api/brandsList</td><td><code>putToBrandsList()</code></td><td class="rc">405</td></tr>
+            <tr><td><span class="m post">POST</span></td><td class="path">/api/searchProduct</td><td><code>searchProduct(term)</code></td><td class="rc">200</td></tr>
+            <tr><td><span class="m post">POST</span></td><td class="path">/api/searchProduct</td><td><code>searchProduct()</code>, no parameter</td><td class="rc">400</td></tr>
+            <tr><td><span class="m post">POST</span></td><td class="path">/api/verifyLogin</td><td><code>verifyLogin({ email, password })</code></td><td class="rc">200 · 404</td></tr>
+            <tr><td><span class="m post">POST</span></td><td class="path">/api/verifyLogin</td><td><code>verifyLogin({ password })</code></td><td class="rc">400</td></tr>
+            <tr><td><span class="m del">DELETE</span></td><td class="path">/api/verifyLogin</td><td><code>deleteToVerifyLogin()</code></td><td class="rc">405</td></tr>
+            <tr><td><span class="m post">POST</span></td><td class="path">/api/createAccount</td><td><code>createAccount(user)</code></td><td class="rc">201 · 400</td></tr>
+            <tr><td><span class="m del">DELETE</span></td><td class="path">/api/deleteAccount</td><td><code>deleteAccount(email, password)</code></td><td class="rc">200</td></tr>
+            <tr><td><span class="m put">PUT</span></td><td class="path">/api/updateAccount</td><td><code>updateAccount(user)</code></td><td class="rc">200</td></tr>
+            <tr><td><span class="m get">GET</span></td><td class="path">/api/getUserDetailByEmail</td><td><code>getUserDetailByEmail(email)</code></td><td class="rc">200 · 404</td></tr>
+            <tr><td><span class="m get">GET</span></td><td class="path">/api/getUserDetailByEmail</td><td><code>getUserDetailByEmail()</code>, no parameter</td><td class="rc">400</td></tr>
+            <tr class="group"><td colspan="4">Storefront · WebClient</td></tr>
+            <tr><td><span class="m post">POST</span></td><td class="path">/login</td><td><code>auth.login()</code>, CSRF</td><td class="rc">302 → /</td></tr>
+            <tr><td><span class="m get">GET</span></td><td class="path">/logout</td><td><code>auth.logout()</code></td><td class="rc">302 → /login</td></tr>
+            <tr><td><span class="m get">GET</span></td><td class="path">/add_to_cart/{id}</td><td><code>cart.add(id, quantity)</code></td><td class="rc">"Added To Cart"</td></tr>
+            <tr><td><span class="m get">GET</span></td><td class="path">/delete_cart/{id}</td><td><code>cart.remove(id)</code></td><td class="rc">"Cart removed"</td></tr>
+            <tr><td><span class="m get">GET</span></td><td class="path">/view_cart · /checkout</td><td><code>cart.view()</code> · <code>checkout.view()</code></td><td class="rc">HTML, parsed</td></tr>
+            <tr><td><span class="m post">POST</span></td><td class="path">/payment</td><td><code>checkout.pay(card)</code>, CSRF</td><td class="rc">302 → /payment_done/{amount}</td></tr>
+            <tr><td><span class="m get">GET</span></td><td class="path">/download_invoice/{amount}</td><td><code>checkout.downloadInvoice()</code></td><td class="rc">text/plain file</td></tr>
+            <tr><td><span class="m post">POST</span></td><td class="path">/contact_us</td><td><code>site.submitContactForm()</code>, multipart, CSRF</td><td class="rc">200 · 403 without token</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section id="coverage">
+      <h2>Coverage map</h2>
+      <p>Each UI test from <code>tests/Framework</code> and its API counterpart. Five can't be tested over HTTP because the behaviour happens only in the browser.</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Case</th><th>Name</th><th>Spec</th><th>User</th><th>Status</th></tr></thead>
+          <tbody>
+            <tr><td class="tc">TC1</td><td>Register User</td><td class="path">auth</td><td><span class="chip new">newUser</span></td><td><span class="chip ok">covered</span></td></tr>
+            <tr><td class="tc">TC2</td><td>Login with correct email and password</td><td class="path">auth</td><td><span class="chip env">envUser</span></td><td><span class="chip ok">covered</span></td></tr>
+            <tr><td class="tc">TC2b</td><td>Login and delete account</td><td class="path">auth</td><td><span class="chip api">apiUser</span></td><td><span class="chip ok">covered</span></td></tr>
+            <tr><td class="tc">TC3</td><td>Login with incorrect email and password</td><td class="path">auth</td><td><span class="chip env">envUser</span></td><td><span class="chip ok">covered</span></td></tr>
+            <tr><td class="tc">TC4</td><td>Logout User</td><td class="path">auth</td><td><span class="chip env">envUser</span></td><td><span class="chip ok">covered</span></td></tr>
+            <tr><td class="tc">TC5</td><td>Register with existing email</td><td class="path">auth</td><td><span class="chip env">envUser</span></td><td><span class="chip ok">covered</span></td></tr>
+            <tr><td class="tc">TC6</td><td>Contact Us Form</td><td class="path">general</td><td><span class="chip none">none</span></td><td><span class="chip ok">covered</span></td></tr>
+            <tr><td class="tc">TC7</td><td>Verify Test Cases Page</td><td class="path">general</td><td><span class="chip none">none</span></td><td><span class="chip ok">covered</span></td></tr>
+            <tr><td class="tc">TC8</td><td>All Products and product detail page</td><td class="path">products</td><td><span class="chip none">none</span></td><td><span class="chip ok">covered</span></td></tr>
+            <tr><td class="tc">TC9</td><td>Search Product (+ men's shirt search)</td><td class="path">products</td><td><span class="chip none">none</span></td><td><span class="chip ok">covered</span></td></tr>
+            <tr><td class="tc">TC10</td><td>Subscription in home page</td><td class="path">–</td><td><span class="chip none">none</span></td><td><span class="chip skip">browser only</span></td></tr>
+            <tr><td class="tc">TC11</td><td>Subscription in Cart page</td><td class="path">–</td><td><span class="chip none">none</span></td><td><span class="chip skip">browser only</span></td></tr>
+            <tr><td class="tc">TC12</td><td>Add Products in Cart</td><td class="path">cart</td><td><span class="chip none">none</span></td><td><span class="chip ok">covered</span></td></tr>
+            <tr><td class="tc">TC13</td><td>Product quantity in Cart</td><td class="path">cart</td><td><span class="chip none">none</span></td><td><span class="chip ok">covered</span></td></tr>
+            <tr><td class="tc">TC14</td><td>Place Order: Register while Checkout</td><td class="path">checkout</td><td><span class="chip new">newUser</span></td><td><span class="chip ok">covered</span></td></tr>
+            <tr><td class="tc">TC15</td><td>Place Order: Register before Checkout</td><td class="path">checkout</td><td><span class="chip new">newUser</span></td><td><span class="chip ok">covered</span></td></tr>
+            <tr><td class="tc">TC16</td><td>Place Order: Login before Checkout</td><td class="path">checkout</td><td><span class="chip api">apiUser</span></td><td><span class="chip ok">covered</span></td></tr>
+            <tr><td class="tc">TC17</td><td>Remove Products From Cart</td><td class="path">cart</td><td><span class="chip none">none</span></td><td><span class="chip ok">covered</span></td></tr>
+            <tr><td class="tc">TC18</td><td>View Category Products</td><td class="path">products</td><td><span class="chip none">none</span></td><td><span class="chip ok">covered</span></td></tr>
+            <tr><td class="tc">TC19</td><td>View &amp; Cart Brand Products</td><td class="path">products</td><td><span class="chip none">none</span></td><td><span class="chip ok">covered</span></td></tr>
+            <tr><td class="tc">TC20</td><td>Search Products and Verify Cart After Login</td><td class="path">cart</td><td><span class="chip api">apiUser</span></td><td><span class="chip ok">covered</span></td></tr>
+            <tr><td class="tc">TC21</td><td>Add review on product</td><td class="path">–</td><td><span class="chip none">none</span></td><td><span class="chip skip">browser only</span></td></tr>
+            <tr><td class="tc">TC22</td><td>Add to cart from Recommended items</td><td class="path">–</td><td><span class="chip none">none</span></td><td><span class="chip skip">same as TC12</span></td></tr>
+            <tr><td class="tc">TC23</td><td>Address details in checkout page</td><td class="path">checkout</td><td><span class="chip api">apiUser</span></td><td><span class="chip ok">covered</span></td></tr>
+            <tr><td class="tc">TC24</td><td>Download Invoice after purchase order</td><td class="path">checkout</td><td><span class="chip api">apiUser</span></td><td><span class="chip ok">covered</span></td></tr>
+            <tr><td class="tc">TC25</td><td>Scroll Up using Arrow button</td><td class="path">–</td><td><span class="chip none">none</span></td><td><span class="chip skip">browser only</span></td></tr>
+            <tr><td class="tc">TC26</td><td>Scroll Up without Arrow button</td><td class="path">–</td><td><span class="chip none">none</span></td><td><span class="chip skip">browser only</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>On top of the UI cases, the API suite adds 15 checks the browser can't easily make: wrong-method (405) and missing-parameter (400) replies, response contracts, updating an account, quantity accumulation, session isolation, and rejecting a form post without a CSRF token.</p>
+    </section>
+
+    <section id="decisions">
+      <h2>Design decisions</h2>
+      <ul class="decisions">
+        <li><strong>A custom matcher for responseCode.</strong><span>Every API reply is HTTP 200. <code>toHaveResponseCode</code> checks the status, the body's code and the message in one assertion, and its failure message shows all three.</span></li>
+        <li><strong>Storefront flows go through the site's own URLs.</strong><span>Cart, login and checkout have no JSON API. Calling <code>/add_to_cart</code>, <code>/login</code> and <code>/payment</code> directly covers TC12 to TC24 without a browser.</span></li>
+        <li><strong>CSRF is handled once, in WebClient.</strong><span>Django rejects a form post without the page's token, and over HTTPS it also checks the Referer. <code>submitForm()</code> does both, so no client repeats it.</span></li>
+        <li><strong>The guest cart is merged by opening the cart.</strong><span>Items added before login only join the user's cart when <code>/view_cart</code> is opened. TC14 opens the cart before checkout, as the UI test does.</span></li>
+        <li><strong>TC6 checks that the contact form is accepted.</strong><span>The "Success!" banner is drawn by JavaScript, and the server returns the same page either way. The test checks the multipart POST gets a 200, and that one without a token gets a 403.</span></li>
+        <li><strong>Regexes instead of an HTML parser.</strong><span>The site's cart and address markup is small and stable. A dozen targeted patterns in <code>htmlParser.ts</code> avoid a new dependency.</span></li>
+        <li><strong>Secrets are masked in reports.</strong><span>Fields named like password, card_number, cvc or csrfmiddlewaretoken show as <code>***</code> in Allure attachments.</span></li>
+      </ul>
+    </section>
+
+    <section id="extend">
+      <h2>Adding tests</h2>
+      <h3>A test on an existing endpoint</h3>
+      <ol class="steps">
+        <li>Open the matching spec in <code>specs/</code>, or create <code>specs/&lt;area&gt;.api.spec.ts</code>.</li>
+        <li>Import <code>test</code> and <code>expect</code> from <code>../fixtures/apiFixtures</code>.</li>
+        <li>Name the clients and user you need in the test's parameters.</li>
+        <li>Call client methods. Use <code>toHaveResponseCode</code> for REST replies and a schema from <code>models/schemas.ts</code> for shapes.</li>
+      </ol>
+      <h3>A new endpoint</h3>
+      <ol class="steps">
+        <li>JSON endpoint: add a method to the client in <code>clients/api/</code> that returns <code>this.call&lt;Body&gt;(method, path, options)</code>, and add the body type to <code>models/types.ts</code>.</li>
+        <li>Page or form: add a method in <code>clients/web/</code> using <code>getPage()</code> or <code>submitForm()</code>, and an extractor in <code>htmlParser.ts</code> if the result is in the HTML.</li>
+        <li>A new client class gets a one-line fixture in <code>fixtures/apiFixtures.ts</code>.</li>
+      </ol>
+<pre class="code"><code><span class="c">// clients/api/ProductsApi.ts</span>
+getProductById(id: number) {
+  return this.call&lt;ProductBody&gt;('GET', `/api/product/${id}`);
+}
+
+<span class="c">// fixtures/apiFixtures.ts</span>
+type ApiFixtures = { ...; ordersApi: OrdersApi };
+ordersApi: async ({ request }, use) =&gt; use(new OrdersApi(request)),</code></pre>
+    </section>
+
+    <section id="run">
+      <h2>Running &amp; reports</h2>
+<pre class="code"><code>npm run test:api                    <span class="c"># all 37 tests</span>
+npx playwright test -c tests/ApiFramework -g "TC14"   <span class="c"># one test</span>
+
+npm run report:api                  <span class="c"># Playwright HTML report</span>
+npm run test:api:allure             <span class="c"># clean, run, build and open Allure</span>
+npm run allure:api                  <span class="c"># build and open Allure from last results</span>
+npm run allure:api:generate         <span class="c"># only build allure-report-api/ (CI)</span></code></pre>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Reporter</th><th>Output</th><th>Use it for</th></tr></thead>
+          <tbody>
+            <tr><td>list</td><td>terminal</td><td>Live progress while tests run</td></tr>
+            <tr><td>HTML</td><td class="path">playwright-report/api</td><td>Debugging a failure with the trace, which records every request and response</td></tr>
+            <tr><td>Allure</td><td class="path">allure-results-api → allure-report-api</td><td>Each request as a step with masked payload and response, grouped by feature and TC tag</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>The suite is also the <code>api</code> project in the root <code>playwright.config.ts</code>. To see it in VS Code's Test Explorer, refresh tests and tick <code>api</code> under Projects in the Playwright panel.</p>
+      <p>Locally a failed test is retried once (twice on CI), and its trace is kept.</p>
+    </section>
+
+    <section id="compare">
+      <h2>vs UI framework</h2>
+      <p>The same test case in both frameworks. The UI version drives six pages; the API version calls the endpoints those pages use.</p>
+      <div class="pair">
+        <div>
+          <p class="label">tests/Framework (UI spec)</p>
+<pre class="code"><code>test('TC17: Remove Products From Cart',
+  async ({ homePage, productsPage, cartPage }) =&gt; {
+  await homePage.header.goToProducts();
+  await productsPage.addProductToCartAt(0);
+  await productsPage.continueShopping();
+  await homePage.header.goToCart();
+  await cartPage.removeProduct(1);
+  await expect(cartPage.emptyCartMessage)
+    .toBeVisible();
+});</code></pre>
+        </div>
+        <div>
+          <p class="label">tests/ApiFramework (API spec)</p>
+<pre class="code"><code>test('TC17: Remove Products From Cart',
+  async ({ cart }) =&gt; {
+  await cart.add(1);
+  expect((await cart.view()).rows
+    .map((r) =&gt; r.productId)).toEqual([1]);
+
+  expect(await cart.remove(1))
+    .toBe('Cart removed');
+  expect((await cart.view()).isEmpty)
+    .toBe(true);
+});</code></pre>
+        </div>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th></th><th>UI (POM)</th><th>API</th></tr></thead>
+          <tbody>
+            <tr><td>Full run</td><td>Minutes, with a browser</td><td>About 26 seconds, no browser</td></tr>
+            <tr><td>Catches</td><td>Broken pages, selectors, JavaScript, layout</td><td>Broken endpoints, data, contracts, server rules</td></tr>
+            <tr><td>Breaks when</td><td>Markup changes</td><td>An endpoint or response shape changes</td></tr>
+            <tr><td>Can test</td><td>Everything a user sees</td><td>Only what reaches the server</td></tr>
+            <tr><td>Best for</td><td>End-to-end user journeys</td><td>Fast feedback, negative cases, test data setup</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+</div>
+
+<!-- Draws the diagrams when the file is opened outside claude.ai. -->
+<script type="module">
+  import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11.4.1/dist/mermaid.esm.min.mjs';
+  const dark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+  mermaid.initialize({ startOnLoad: true, securityLevel: 'strict', theme: dark ? 'dark' : 'neutral' });
+</script>
+</body>
+</html>

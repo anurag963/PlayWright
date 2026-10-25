@@ -1,0 +1,782 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif}img{max-width:100%}[hidden]{display:none!important}</style>
+</head>
+<body>
+<title>Automation Exercise Hybrid Cucumber Framework</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700&family=Instrument+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: sibling of the POM, Cucumber, API and Hybrid guides. Sticky contents rail left, one reading column. Gherkin keyword colours from the Cucumber guide plus UI / API layer chips from the Hybrid guide; the layer named in each sentence is this page's signature detail. */
+:root {
+  --bg: #f6f6f8;
+  --surface: #ffffff;
+  --fg: #1c1c28;
+  --muted: #5b5c70;
+  --line: #dddde6;
+  --accent: #5b47a6;       /* hybrid-cucumber violet: the hybrid indigo shifted toward the Cucumber guide's "When" purple */
+  --accent-soft: #ebe7f7;
+  --ui: #1f7a52;   --ui-soft: #e2f1e8;
+  --api: #1d6f86;  --api-soft: #e0eff3;
+  --given: #2d5b9a; --when: #8a4fa8; --then: #2f7d3a;
+  --warn: #9a5b00; --warn-soft: #fbefd9;
+  --tag: #a3480f;
+  --str: #6b5a12;
+  --code-bg: #eeeef4;
+  --font-display: "Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  --font-body: "Instrument Sans", "Segoe UI", system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #111118; --surface: #191a23; --fg: #e6e6ef; --muted: #9d9eb3; --line: #2d2d3c;
+    --accent: #b8a8f0; --accent-soft: #2a2442;
+    --ui: #5cc893; --ui-soft: #1a3326; --api: #6cc4dc; --api-soft: #18323a;
+    --given: #8db4ec; --when: #d3a1ec; --then: #6fcf7d;
+    --warn: #f0b456; --warn-soft: #362a14; --tag: #f0a46e; --str: #e2cf7a; --code-bg: #1f1f2c;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #111118; --surface: #191a23; --fg: #e6e6ef; --muted: #9d9eb3; --line: #2d2d3c;
+  --accent: #b8a8f0; --accent-soft: #2a2442;
+  --ui: #5cc893; --ui-soft: #1a3326; --api: #6cc4dc; --api-soft: #18323a;
+  --given: #8db4ec; --when: #d3a1ec; --then: #6fcf7d;
+  --warn: #f0b456; --warn-soft: #362a14; --tag: #f0a46e; --str: #e2cf7a; --code-bg: #1f1f2c;
+  color-scheme: dark;
+}
+
+body {
+  background: var(--bg); color: var(--fg);
+  font: 16px/1.6 var(--font-body);
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+.shell { max-width: 1120px; margin: 0 auto; display: grid; grid-template-columns: 210px minmax(0, 1fr); gap: 48px; padding-block: 48px 80px; }
+@media (max-width: 860px) { .shell { grid-template-columns: minmax(0, 1fr); gap: 24px; padding-block: 28px 56px; } .toc { display: none; } }
+
+.toc { position: sticky; top: calc(env(safe-area-inset-top, 0px) + 24px); align-self: start; font-size: 14px; }
+.toc p { font: 600 11px/1 var(--font-body); letter-spacing: .08em; text-transform: uppercase; color: var(--muted); margin: 0 0 12px; }
+.toc ol { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
+.toc a { color: var(--muted); text-decoration: none; }
+.toc a:hover, .toc a:focus-visible { color: var(--accent); }
+
+main { min-width: 0; max-width: 760px; }
+header.top { display: grid; gap: 12px; margin-bottom: 40px; }
+.eyebrow { font: 500 13px/1 var(--font-mono); color: var(--accent); }
+h1 { font: 700 clamp(30px, 5vw, 44px)/1.1 var(--font-display); margin: 0; text-wrap: balance; letter-spacing: -.01em; }
+.lede { color: var(--muted); margin: 0; font-size: 18px; max-width: 62ch; }
+.stats { display: flex; flex-wrap: wrap; gap: 8px 20px; margin-top: 8px; font: 500 13px/1.4 var(--font-mono); color: var(--muted); }
+.stats b { color: var(--fg); font-weight: 500; }
+
+section { padding-block: 32px; border-top: 1px solid var(--line); scroll-margin-top: 16px; }
+h2 { font: 600 26px/1.2 var(--font-display); margin: 0 0 12px; text-wrap: balance; }
+h3 { font: 600 17px/1.3 var(--font-body); margin: 28px 0 8px; }
+p { margin: 0 0 14px; max-width: 68ch; }
+ul { margin: 0 0 14px; padding-left: 22px; display: grid; gap: 4px; }
+a { color: var(--accent); }
+code { font: 0.86em var(--font-mono); background: var(--code-bg); padding: 1px 5px; border-radius: 4px; overflow-wrap: anywhere; }
+pre.code { font: 13px/1.65 var(--font-mono); background: var(--code-bg); padding: 16px 18px; border-radius: 8px; overflow-x: auto; margin: 0 0 16px; }
+pre.code code { background: none; padding: 0; font-size: inherit; overflow-wrap: normal; }
+.c { color: var(--muted); }
+.st { color: var(--str); }
+.tg { color: var(--tag); }
+.kw-feature { color: var(--fg); font-weight: 500; }
+.kw-given { color: var(--given); font-weight: 500; }
+.kw-when { color: var(--when); font-weight: 500; }
+.kw-then { color: var(--then); font-weight: 500; }
+.ly-ui { color: var(--ui); font-weight: 500; }
+.ly-api { color: var(--api); font-weight: 500; }
+
+.diagram { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 20px; overflow-x: auto; margin: 4px 0 16px; }
+.diagram pre.mermaid { margin: 0; background: none; display: flex; justify-content: center; min-width: 560px; }
+.caption { font-size: 14px; color: var(--muted); margin-top: -6px; }
+
+.pair { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 12px; margin-bottom: 16px; }
+.pair > div { min-width: 0; }
+.pair .label { font: 600 11px/1 var(--font-body); letter-spacing: .07em; text-transform: uppercase; color: var(--muted); margin: 0 0 8px; }
+.pair pre.code { margin: 0; height: 100%; box-sizing: border-box; }
+@media (max-width: 700px) { .pair { grid-template-columns: minmax(0, 1fr); } }
+
+.table-wrap { overflow-x: auto; margin: 4px 0 16px; border: 1px solid var(--line); border-radius: 10px; background: var(--surface); }
+table { border-collapse: collapse; width: 100%; font-size: 14px; }
+th, td { text-align: left; padding: 9px 12px; border-bottom: 1px solid var(--line); vertical-align: top; }
+th { font: 600 11px/1.3 var(--font-body); letter-spacing: .07em; text-transform: uppercase; color: var(--muted); background: var(--bg); }
+tr:last-child td { border-bottom: none; }
+td.tc, td.path { font: 13px var(--font-mono); white-space: nowrap; }
+tr.group td { background: var(--bg); font: 600 12px/1.3 var(--font-body); letter-spacing: .04em; color: var(--fg); }
+
+.chip { display: inline-block; font: 500 12px/1 var(--font-mono); padding: 4px 7px; border-radius: 999px; white-space: nowrap; }
+.chip.ui { background: var(--ui-soft); color: var(--ui); }
+.chip.api { background: var(--api-soft); color: var(--api); }
+.chip.both { background: var(--accent-soft); color: var(--accent); }
+.chip.env { background: var(--warn-soft); color: var(--warn); }
+.chip.setup { background: var(--code-bg); color: var(--muted); }
+
+.dir { display: inline-flex; align-items: center; gap: 4px; font: 500 12px/1 var(--font-mono); white-space: nowrap; }
+.dir i { font-style: normal; padding: 4px 6px; border-radius: 4px; }
+.dir i.u { background: var(--ui-soft); color: var(--ui); }
+.dir i.a { background: var(--api-soft); color: var(--api); }
+.dir b { font-weight: 500; color: var(--muted); }
+
+.users { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin: 8px 0 16px; }
+@media (max-width: 640px) { .users { grid-template-columns: minmax(0, 1fr); } }
+.user { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 16px; display: grid; gap: 8px; align-content: start; }
+.user p { margin: 0; font-size: 14px; }
+.user .who { font-size: 13px; color: var(--muted); }
+
+.note { background: var(--accent-soft); border-radius: 8px; padding: 12px 14px; margin: 0 0 16px; font-size: 15px; max-width: 68ch; }
+.note p { margin: 0; }
+
+/* Step catalogue */
+.catalogue { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; overflow: hidden; margin: 8px 0 16px; }
+.cat-controls { display: grid; gap: 10px; padding: 14px; border-bottom: 1px solid var(--line); background: var(--bg); }
+.cat-controls input { font: 15px var(--font-body); padding: 9px 12px; border: 1px solid var(--line); border-radius: 8px; background: var(--surface); color: var(--fg); width: 100%; box-sizing: border-box; }
+.cat-controls input:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+.filter-row { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
+.filter-row .fl { font: 600 11px/1 var(--font-body); letter-spacing: .07em; text-transform: uppercase; color: var(--muted); min-width: 44px; }
+.filter-row button { font: 500 13px var(--font-body); padding: 5px 10px; border-radius: 999px; border: 1px solid var(--line); background: var(--surface); color: var(--muted); cursor: pointer; }
+.filter-row button[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: var(--surface); }
+.filter-row button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.cat-count { font: 13px var(--font-mono); color: var(--muted); }
+.cat-list { list-style: none; margin: 0; padding: 0; max-height: 460px; overflow-y: auto; }
+.cat-list li { display: grid; grid-template-columns: 52px minmax(0, 1fr) auto auto; gap: 10px; align-items: baseline; padding: 8px 14px; border-bottom: 1px solid var(--line); font-size: 14px; }
+.cat-list li:last-child { border-bottom: none; }
+.cat-list .k { font: 500 12px var(--font-mono); }
+.cat-list .k.Given { color: var(--given); } .cat-list .k.When { color: var(--when); } .cat-list .k.Then { color: var(--then); }
+.cat-list .t { font-family: var(--font-mono); font-size: 13px; overflow-wrap: anywhere; }
+.cat-list .t .p { color: var(--str); }
+.cat-list .f { font: 12px var(--font-mono); color: var(--muted); white-space: nowrap; }
+@media (max-width: 560px) { .cat-list li { grid-template-columns: 48px minmax(0, 1fr) auto; } .cat-list .f { display: none; } }
+.cat-empty { padding: 16px 14px; color: var(--muted); font-size: 14px; display: block !important; }
+
+.pitfalls, .decisions { display: grid; gap: 14px; margin: 8px 0 0; padding: 0; list-style: none; }
+.pitfalls li, .decisions li { display: grid; gap: 4px; padding-left: 14px; border-left: 2px solid var(--line); }
+.pitfalls strong, .decisions strong { font-weight: 600; }
+.pitfalls span, .decisions span { color: var(--muted); font-size: 15px; }
+
+ol.steps { padding-left: 22px; margin: 0 0 16px; display: grid; gap: 6px; }
+@media (prefers-reduced-motion: no-preference) { html { scroll-behavior: smooth; } }
+a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 2px; }
+</style>
+
+<div class="shell">
+  <nav class="toc" aria-label="Contents">
+    <p>Contents</p>
+    <ol>
+      <li><a href="#overview">Overview</a></li>
+      <li><a href="#architecture">Architecture</a></li>
+      <li><a href="#pipeline">Generate &amp; run</a></li>
+      <li><a href="#session">One shared session</a></li>
+      <li><a href="#anatomy">Sentence to code</a></li>
+      <li><a href="#lifecycle">Scenario lifecycle</a></li>
+      <li><a href="#context">Context across layers</a></li>
+      <li><a href="#folders">Folder map</a></li>
+      <li><a href="#gherkin">Gherkin used</a></li>
+      <li><a href="#users">Test users</a></li>
+      <li><a href="#catalogue">Step catalogue</a></li>
+      <li><a href="#coverage">Scenario catalogue</a></li>
+      <li><a href="#run">Running &amp; reports</a></li>
+      <li><a href="#extend">Adding scenarios</a></li>
+      <li><a href="#pitfalls">Pitfalls</a></li>
+      <li><a href="#compare">vs other frameworks</a></li>
+    </ol>
+  </nav>
+
+  <main>
+    <header class="top">
+      <span class="eyebrow">tests/HybridCucumberFramework</span>
+      <h1>Automation Exercise Hybrid Cucumber Framework</h1>
+      <p class="lede">The hybrid UI + API framework with a Gherkin layer on top. Scenarios mix both layers in plain language, and every sentence says which one it uses: <em>via the API</em> or <em>in the UI</em>.</p>
+      <div class="stats"><span><b>4</b> feature files</span><span><b>20</b> scenarios</span><span><b>24</b> tests</span><span><b>51</b> step definitions</span><span><b>1</b> shared session</span><span><b>~44 s</b> full run</span></div>
+    </header>
+
+    <section id="overview">
+      <h2>Overview</h2>
+      <p>This framework combines two that already exist in the repo:</p>
+      <ul>
+        <li><strong>From the hybrid framework:</strong> page objects for the UI, REST and storefront clients for the API, all running on one browser session.</li>
+        <li><strong>From the Cucumber frameworks:</strong> playwright-bdd, feature files, step definitions, a per-scenario <code>ctx</code> and the Cucumber HTML report.</li>
+      </ul>
+      <p>The result is a scenario that a tester or product owner can read, where the API sets things up and the browser does the part being tested:</p>
+<pre class="code"><code><span class="tg">@HY18 @smoke</span>
+<span class="kw-feature">Scenario:</span> Order placed in the UI from a cart built via the API
+  <span class="kw-given">Given</span> a registered user exists
+  <span class="kw-when">When</span> I log in <span class="ly-api">via the API</span>
+  <span class="kw-when">And</span> I add the product at position <span class="st">1</span> to the cart <span class="ly-api">via the API</span> with quantity <span class="st">2</span>
+  <span class="kw-when">And</span> I proceed to checkout <span class="ly-ui">in the UI</span>
+  <span class="kw-then">Then</span> the <span class="ly-ui">UI</span> order review lists the added products with their <span class="ly-api">API</span> prices</code></pre>
+      <div class="note"><p>The site's API cannot create products; the catalogue is fixed. "Add a product via the API" means adding it <strong>to the cart</strong> over HTTP and checking it in the browser (HY1).</p></div>
+    </section>
+
+    <section id="architecture">
+      <h2>Architecture</h2>
+      <p>The Gherkin layer sits on top of the hybrid framework. Nothing below the step definitions knows that Gherkin exists, and nothing below the fixtures knows the two layers share a session.</p>
+      <div class="diagram">
+<pre class="mermaid">
+flowchart TB
+  subgraph G["Gherkin layer"]
+    FEAT["features/*.feature<br/>cart · products · account · checkout"]
+    STEPS["steps/*.steps.ts<br/>sentence → page object or API client"]
+  end
+  BDDGEN["bddgen<br/>validates steps, generates tests"]
+  GEN[".features-gen/*.spec.js<br/>generated Playwright tests"]
+  RUNNER["Playwright runner<br/>Chromium · workers · retries"]
+  FIX["fixtures/hybridFixtures.ts<br/>createBdd · ctx · page objects · API clients · users"]
+  subgraph UI["UI layer"]
+    PAGES["pages/ + components/"]
+  end
+  subgraph API["API layer"]
+    CLIENTS["clients/ + core/<br/>REST + storefront"]
+  end
+  subgraph CTX["Browser context"]
+    TAB["page"]
+    REQ["page.request"]
+    JAR[("cookie jar")]
+  end
+  SITE[("automationexercise.com")]
+  REP["Reports<br/>Cucumber HTML · Playwright HTML · Allure"]
+
+  FEAT --> BDDGEN
+  STEPS --> BDDGEN
+  BDDGEN --> GEN
+  GEN --> RUNNER
+  RUNNER --> STEPS
+  STEPS --> FIX
+  FIX --> PAGES
+  FIX --> CLIENTS
+  PAGES --> TAB
+  CLIENTS --> REQ
+  TAB --- JAR
+  REQ --- JAR
+  TAB --> SITE
+  REQ --> SITE
+  RUNNER --> REP
+</pre>
+      </div>
+      <p class="caption">Step definitions take part twice: <code>bddgen</code> reads them to check every sentence is covered, and the runner calls them while a scenario runs.</p>
+    </section>
+
+    <section id="pipeline">
+      <h2>Generate &amp; run</h2>
+      <p><code>npm run test:hybrid-cucumber</code> runs both stages.</p>
+      <div class="diagram">
+<pre class="mermaid">
+flowchart LR
+  A["Edit a .feature file"] --> B["npm run bddgen:hybrid"]
+  B --> C{"Every sentence has<br/>a step definition?"}
+  C -- "no" --> D["bddgen fails and prints<br/>a code snippet"]
+  D --> E["Add the step in steps/*.steps.ts"]
+  E --> B
+  C -- "yes" --> F["Writes .features-gen/*.spec.js"]
+  F --> G["playwright test<br/>(browser + page.request)"]
+  G --> H["Cucumber HTML<br/>Playwright HTML<br/>Allure results"]
+</pre>
+      </div>
+      <p>Generated files are gitignored and recreated on every run. Edit the feature or the step, never the generated file. Plain <code>npx bddgen</code> from the repo root does not generate these; use <code>npm run bddgen:hybrid</code>.</p>
+    </section>
+
+    <section id="session">
+      <h2>One shared session</h2>
+      <p>The API clients are built on <code>page.request</code>, the browser context's own HTTP client, which uses the tab's cookies. The site keeps the cart and login in the session cookie, so a step in one layer changes what the next step in the other layer sees:</p>
+      <div class="diagram">
+<pre class="mermaid">
+sequenceDiagram
+  autonumber
+  participant F as Feature file
+  participant S as Step definitions
+  participant API as apiCart (page.request)
+  participant J as Cookie jar
+  participant B as Browser tab
+  participant W as Site
+
+  F->>S: When I add product 1 to the cart via the API
+  S->>API: add(1)
+  API->>W: GET /add_to_cart/1
+  W-->>API: Added To Cart + session cookie
+  API->>J: store session
+  F->>S: And I open the cart page in the UI
+  S->>B: cartPage.open()
+  B->>J: read session
+  B->>W: GET /view_cart
+  W-->>B: cart with product 1
+  F->>S: Then the UI cart lists the added products
+  S->>B: expect row #product-1 visible
+</pre>
+      </div>
+    </section>
+
+    <section id="anatomy">
+      <h2>Sentence to code</h2>
+      <p>The layer word in the sentence tells you which fixture the step uses. A "via the API" step calls an API client; an "in the UI" step calls a page object.</p>
+      <div class="pair">
+        <div>
+          <p class="label">Feature file</p>
+<pre class="code"><code><span class="kw-when">When</span> I add product <span class="st">1</span> to the cart <span class="ly-api">via the API</span>
+<span class="kw-when">And</span> I remove product <span class="st">1</span> from the cart <span class="ly-ui">in the UI</span>
+<span class="kw-then">Then</span> the <span class="ly-api">API</span> cart contains exactly the added products</code></pre>
+        </div>
+        <div>
+          <p class="label">Step definitions</p>
+<pre class="code"><code>When('I add product {int} to the cart via the API',
+  async ({ ctx, <span class="ly-api">apiCart</span> }, id) =&gt; { ... });
+
+When('I remove product {int} from the cart in the UI',
+  async ({ ctx, <span class="ly-ui">cartPage</span> }, id) =&gt; { ... });</code></pre>
+        </div>
+      </div>
+      <div class="diagram">
+<pre class="mermaid">
+flowchart LR
+  S1["...to the cart via the API"] --> D1["step definition"] --> F1["apiCart<br/>API client"]
+  S2["...from the cart in the UI"] --> D2["step definition"] --> F2["cartPage<br/>page object"]
+  S3["the API cart contains..."] --> D3["step definition"] --> F3["apiCart.view()<br/>polls until the UI change lands"]
+</pre>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Part</th><th>Meaning</th></tr></thead>
+          <tbody>
+            <tr><td class="path">{int} {string} {word}</td><td>Cucumber Expression parameters: a whole number, quoted text, one word.</td></tr>
+            <tr><td class="path">{ ctx, apiCart }</td><td>Fixtures the step needs. Page objects and API clients come from the same fixture file and share the browser session.</td></tr>
+            <tr><td class="path">ctx.added</td><td>Every cart change, from either layer, is recorded here so the check steps on both sides know what to expect.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section id="lifecycle">
+      <h2>Scenario lifecycle</h2>
+      <p>HY18 from start to report. The fixtures a scenario needs are worked out from all of its steps, so the API user exists before the first step runs.</p>
+      <div class="diagram">
+<pre class="mermaid">
+sequenceDiagram
+  autonumber
+  participant R as Runner
+  participant FX as Fixtures
+  participant S as Step definitions
+  participant C as ctx
+  participant API as API clients
+  participant UI as Page objects
+  participant W as Website + API
+
+  R->>FX: build browser, page objects, API clients, ctx
+  FX->>W: apiUser: POST /api/createAccount
+  R->>S: Given a registered user exists
+  S->>C: ctx.user = apiUser
+  R->>S: And I have the list of all products from the API
+  S->>API: GET /api/productsList
+  S->>C: ctx.products
+  Note over R,W: Arrange via the API
+  R->>S: When I log in via the API
+  S->>API: POST /login (session now shared)
+  R->>S: And I add the product at position 1 ... via the API with quantity 2
+  S->>API: GET /add_to_cart/{id}?quantity=2
+  S->>C: push to ctx.added
+  Note over R,W: Act in the UI
+  R->>S: And I proceed to checkout in the UI
+  S->>UI: cartPage.open(), proceedToCheckout()
+  R->>S: Then the UI order review lists the added products with their API prices
+  S->>C: read ctx.added
+  R->>S: When I place the order ... / pay with a valid card in the UI
+  S->>UI: placeOrder(), payAndConfirm()
+  Note over R,W: Assert in both layers
+  R->>S: Then the invoice total is the cart total calculated from API prices
+  R->>S: And the API cart is empty
+  S->>API: GET /view_cart
+  R->>FX: scenario finished
+  FX->>W: apiUser teardown: DELETE /api/deleteAccount
+  R-->>R: Cucumber HTML, Playwright HTML, Allure
+</pre>
+      </div>
+    </section>
+
+    <section id="context">
+      <h2>Context across layers</h2>
+      <p>Each scenario gets a fresh <code>ctx</code>, Cucumber's "World". In this framework it also carries state from one layer to the other:</p>
+<pre class="code"><code>interface ScenarioContext {
+  user?: Account;          <span class="c">// who the scenario acts as</span>
+  userData?: UserData;     <span class="c">// full data for UI forms and API comparisons</span>
+  products: Product[];     <span class="c">// last API list or search</span>
+  brands: string[];        <span class="c">// API brand names</span>
+  added: { id; quantity; product? }[];  <span class="c">// cart changes from EITHER layer</span>
+  apiOrder?: { amount; text };          <span class="c">// order paid via the API</span>
+  download?: Download;     <span class="c">// invoice downloaded in the UI</span>
+}</code></pre>
+      <div class="diagram">
+<pre class="mermaid">
+flowchart LR
+  subgraph W["Steps that change the cart"]
+    A1["...to the cart via the API"]
+    A2["...to the cart in the UI"]
+    A3["...from the cart in the UI"]
+  end
+  CTX[("ctx.added")]
+  subgraph C["Steps that check the cart"]
+    C1["the UI cart shows exactly..."]
+    C2["the API cart contains exactly..."]
+    C3["the UI order review lists..."]
+    C4["the invoice total is..."]
+  end
+  A1 --> CTX
+  A2 --> CTX
+  A3 --> CTX
+  CTX --> C1
+  CTX --> C2
+  CTX --> C3
+  CTX --> C4
+</pre>
+      </div>
+      <p class="caption">Because both layers write to and read from the same list, a scenario can change the cart in one layer and check it in the other with no extra wiring.</p>
+      <p>A step that needs data an earlier step should have set fails with a message naming that step, for example <em>No product at position 1 (list has 0). Get products from the API first.</em></p>
+    </section>
+
+    <section id="folders">
+      <h2>Folder map</h2>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Path</th><th>Layer</th><th>Responsibility</th></tr></thead>
+          <tbody>
+            <tr><td class="path">features/</td><td><span class="chip both">both</span></td><td>Scenarios in Gherkin: <code>cart</code>, <code>products</code>, <code>account</code>, <code>checkout</code>.</td></tr>
+            <tr><td class="path">steps/</td><td><span class="chip both">both</span></td><td>Step definitions. <code>common.steps.ts</code> has users, navigation and login through either layer.</td></tr>
+            <tr><td class="path">fixtures/hybridFixtures.ts</td><td><span class="chip both">both</span></td><td>Extends playwright-bdd's <code>test</code> with page objects, API clients on <code>page.request</code>, users and <code>ctx</code>. Exports <code>Given</code>, <code>When</code>, <code>Then</code> and helpers.</td></tr>
+            <tr><td class="path">pages/, components/</td><td><span class="chip ui">UI</span></td><td>Page objects, same as the hybrid framework.</td></tr>
+            <tr><td class="path">clients/, core/, models/</td><td><span class="chip api">API</span></td><td>REST and storefront clients, response types and schemas.</td></tr>
+            <tr><td class="path">utils/</td><td><span class="chip both">both</span></td><td>env, test data, UI flows, <code>loginViaApi</code>, HTML extractors.</td></tr>
+            <tr><td class="path">playwright.config.ts</td><td><span class="chip both">both</span></td><td><code>defineBddConfig()</code> with absolute paths; exports <code>hybridCucumberProject</code>; four reporters.</td></tr>
+            <tr><td class="path">global-setup.ts</td><td><span class="chip api">API</span></td><td>Checks the <code>.env</code> login once before any scenario.</td></tr>
+            <tr><td class="path">.features-gen/</td><td><span class="chip setup">generated</span></td><td>Generated tests. Gitignored. Never edit.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section id="gherkin">
+      <h2>Gherkin used</h2>
+      <h3>Scenario Outline with Examples</h3>
+      <p>Each row is a separate test. HY7 compares the UI and API search for three terms:</p>
+<pre class="code"><code>  <span class="tg">@HY7</span>
+  <span class="kw-feature">Scenario Outline:</span> UI search for "&lt;term&gt;" returns the API search results
+    <span class="kw-when">When</span> I search the API for <span class="st">"&lt;term&gt;"</span>
+    <span class="kw-when">And</span> I click <span class="st">"Products"</span> in the header
+    <span class="kw-when">And</span> I search for <span class="st">"&lt;term&gt;"</span> in the UI
+    <span class="kw-then">Then</span> the UI listing shows exactly the API products in the same order
+
+    <span class="kw-feature">Examples:</span>
+      | term  |
+      | Jeans |
+      | Saree |
+      | Top   |</code></pre>
+      <h3>Data table</h3>
+<pre class="code"><code>    <span class="kw-when">When</span> I update the user's account <span class="ly-api">via the API</span> with:
+      | company  | Hybrid Labs           |
+      | address1 | 742 Evergreen Terrace |
+      | city     | Springfield           |</code></pre>
+      <p>The step reads it with <code>table.rowsHash()</code>, rejects unknown field names, and stores the updated user in <code>ctx</code> so the later UI address check compares against it.</p>
+      <h3>Comments as phase markers</h3>
+<pre class="code"><code>    <span class="c"># Arrange via the API: logged-in session with a known cart, no UI clicks.</span>
+    <span class="kw-when">When</span> I log in <span class="ly-api">via the API</span>
+    ...
+    <span class="c"># Act in the UI.</span>
+    <span class="kw-when">And</span> I proceed to checkout <span class="ly-ui">in the UI</span></code></pre>
+      <h3>Tags</h3>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Tag</th><th>Meaning</th></tr></thead>
+          <tbody>
+            <tr><td class="path">@cart @products @account @checkout</td><td>Feature area, inherited by every scenario in the file.</td></tr>
+            <tr><td class="path">@smoke</td><td>One key scenario per feature: HY1, HY6, HY13, HY18.</td></tr>
+            <tr><td class="path">@HY1 … @HY20</td><td>Same IDs as the spec-based hybrid framework, so a case can be compared across both.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section id="users">
+      <h2>Test users</h2>
+      <div class="users">
+        <div class="user">
+          <span class="chip api">apiUser</span>
+          <p><code>Given a registered user exists</code></p>
+          <p>Created via the API before the scenario, deleted after it.</p>
+          <p class="who">HY5, HY12, HY14–HY20</p>
+        </div>
+        <div class="user">
+          <span class="chip ui">newUser</span>
+          <p><code>Given I have details for a new user</code></p>
+          <p>Unique data; the scenario registers it in the UI. Deleted via the API afterwards.</p>
+          <p class="who">HY13</p>
+        </div>
+        <div class="user">
+          <span class="chip env">envUser</span>
+          <p><code>Given I use the account from the environment file</code></p>
+          <p>Your <code>.env</code> account. Shared and <strong>never deleted</strong>.</p>
+          <p class="who">available, not used by current scenarios</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="catalogue">
+      <h2>Step catalogue</h2>
+      <p>All 51 step definitions, marked by the layer they use. Search before writing a new step; reusing a sentence keeps the features consistent. The same list is printed by <code>npx bddgen export -c tests/HybridCucumberFramework</code>.</p>
+      <div class="catalogue">
+        <div class="cat-controls">
+          <label for="step-search" class="cat-count">Search steps</label>
+          <input id="step-search" type="search" placeholder="e.g. cart, via the API, {string}" autocomplete="off">
+          <div class="filter-row" role="group" aria-label="Filter by layer" id="layer-filters"><span class="fl">Layer</span></div>
+          <div class="filter-row" role="group" aria-label="Filter by file" id="file-filters"><span class="fl">File</span></div>
+          <span class="cat-count" id="step-count" aria-live="polite"></span>
+        </div>
+        <ul class="cat-list" id="step-list"></ul>
+      </div>
+    </section>
+
+    <section id="coverage">
+      <h2>Scenario catalogue</h2>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Tag</th><th>Scenario</th><th>Pattern</th><th>Tests</th></tr></thead>
+          <tbody>
+            <tr class="group"><td colspan="4">cart.feature</td></tr>
+            <tr><td class="tc">@HY1</td><td>Products added via the API appear in the UI cart</td><td><span class="dir"><i class="a">API</i><b>→</b><i class="u">UI</i></span></td><td>1</td></tr>
+            <tr><td class="tc">@HY2</td><td>A product added in the UI is in the API cart</td><td><span class="dir"><i class="u">UI</i><b>→</b><i class="a">API</i></span></td><td>1</td></tr>
+            <tr><td class="tc">@HY3</td><td>A product removed in the UI is gone from the API cart</td><td><span class="dir"><i class="u">UI</i><b>→</b><i class="a">API</i></span></td><td>1</td></tr>
+            <tr><td class="tc">@HY4</td><td>Quantity set on the product page is the quantity in the API cart</td><td><span class="dir"><i class="u">UI</i><b>→</b><i class="a">API</i></span></td><td>1</td></tr>
+            <tr><td class="tc">@HY5</td><td>A guest cart built via the API is kept after logging in on the UI</td><td><span class="dir"><i class="a">API</i><b>→</b><i class="u">UI</i></span></td><td>1</td></tr>
+            <tr class="group"><td colspan="4">products.feature</td></tr>
+            <tr><td class="tc">@HY6</td><td>The products page lists exactly the API products</td><td><span class="dir"><i class="a">API</i><b>=</b><i class="u">UI</i></span></td><td>1</td></tr>
+            <tr><td class="tc">@HY7</td><td>UI search returns the API search results (Jeans, Saree, Top)</td><td><span class="dir"><i class="a">API</i><b>=</b><i class="u">UI</i></span></td><td>3</td></tr>
+            <tr><td class="tc">@HY8</td><td>Product details pages show the API data</td><td><span class="dir"><i class="a">API</i><b>=</b><i class="u">UI</i></span></td><td>1</td></tr>
+            <tr><td class="tc">@HY9</td><td>The brands sidebar lists exactly the API brands</td><td><span class="dir"><i class="a">API</i><b>=</b><i class="u">UI</i></span></td><td>1</td></tr>
+            <tr><td class="tc">@HY10</td><td>Brand pages list the API's products of that brand (Polo, H&amp;M)</td><td><span class="dir"><i class="a">API</i><b>=</b><i class="u">UI</i></span></td><td>2</td></tr>
+            <tr><td class="tc">@HY11</td><td>Category pages list the API's products in that category (Women – Tops, Men – Jeans)</td><td><span class="dir"><i class="a">API</i><b>=</b><i class="u">UI</i></span></td><td>2</td></tr>
+            <tr class="group"><td colspan="4">account.feature</td></tr>
+            <tr><td class="tc">@HY12</td><td>A user created via the API can log in on the UI</td><td><span class="dir"><i class="a">API</i><b>→</b><i class="u">UI</i></span></td><td>1</td></tr>
+            <tr><td class="tc">@HY13</td><td>A user registered in the UI exists in the API with the entered details</td><td><span class="dir"><i class="u">UI</i><b>→</b><i class="a">API</i></span></td><td>1</td></tr>
+            <tr><td class="tc">@HY14</td><td>An account deleted in the UI is gone from the API</td><td><span class="dir"><i class="u">UI</i><b>→</b><i class="a">API</i></span></td><td>1</td></tr>
+            <tr><td class="tc">@HY15</td><td>Logging in via the API logs the browser in</td><td><span class="dir"><i class="a">API</i><b>→</b><i class="u">UI</i></span></td><td>1</td></tr>
+            <tr><td class="tc">@HY16</td><td>Logging out in the UI ends the API session</td><td><span class="dir"><i class="u">UI</i><b>→</b><i class="a">API</i></span></td><td>1</td></tr>
+            <tr><td class="tc">@HY17</td><td>An address updated via the API shows on the UI checkout page</td><td><span class="dir"><i class="a">API</i><b>→</b><i class="u">UI</i></span></td><td>1</td></tr>
+            <tr class="group"><td colspan="4">checkout.feature</td></tr>
+            <tr><td class="tc">@HY18</td><td>Order placed in the UI from a cart built via the API</td><td><span class="dir"><i class="a">API</i><b>→</b><i class="u">UI</i><b>→</b><i class="a">API</i></span></td><td>1</td></tr>
+            <tr><td class="tc">@HY19</td><td>Order paid via the API leaves the UI cart empty</td><td><span class="dir"><i class="a">API</i><b>→</b><i class="u">UI</i></span></td><td>1</td></tr>
+            <tr><td class="tc">@HY20</td><td>The UI checkout review matches the cart built via the API</td><td><span class="dir"><i class="a">API</i><b>→</b><i class="u">UI</i></span></td><td>1</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>Last two runs, 26 Oct 2026: 24 passed, 0 failed, retries off, about 44 seconds each. The <code>@smoke</code> scenarios also pass through the root config.</p>
+    </section>
+
+    <section id="run">
+      <h2>Running &amp; reports</h2>
+<pre class="code"><code>npm run test:hybrid-cucumber                    <span class="c"># generate + run everything</span>
+npm run test:hybrid-cucumber:headed             <span class="c"># watch the browser</span>
+npm run bddgen:hybrid                           <span class="c"># generate only, after editing a feature</span>
+npm run test:hybrid-cucumber -- --grep @smoke   <span class="c"># by tag</span>
+npm run test:hybrid-cucumber -- --grep @HY18    <span class="c"># one scenario</span>
+npm run test:hybrid-cucumber -- -g "H&amp;M"        <span class="c"># one Examples row</span>
+npm run test:hybrid-cucumber -- --grep "@cart|@checkout"</code></pre>
+      <p>Anything after <code>--</code> goes to <code>playwright test</code>.</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Report</th><th>Where</th><th>Best for</th></tr></thead>
+          <tbody>
+            <tr><td>Cucumber HTML</td><td class="path">cucumber-report-hybrid/index.html</td><td>Reading results as Given / When / Then; sharing with non-developers</td></tr>
+            <tr><td>Playwright HTML</td><td class="path">npm run report:hybrid-cucumber</td><td>Debugging with screenshot, video and a trace of clicks and HTTP calls</td></tr>
+            <tr><td>Allure</td><td class="path">npm run allure:hybrid-cucumber</td><td>Each Gherkin step with its UI actions and HTTP calls (masked request, response)</td></tr>
+            <tr><td>list</td><td>terminal</td><td>Live progress</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>The suite is the <code>hybrid-cucumber</code> project in the root config. For VS Code's Test Explorer: run <code>npm run bddgen:hybrid</code>, click <strong>Refresh Tests</strong>, then tick <code>hybrid-cucumber</code> under Projects.</p>
+    </section>
+
+    <section id="extend">
+      <h2>Adding scenarios</h2>
+      <ol class="steps">
+        <li>Write the scenario in the matching feature file. Put the layer in every sentence: "via the API" or "in the UI".</li>
+        <li>Use API steps for setup the scenario doesn't verify (user, login, cart); use the UI for the behaviour under test.</li>
+        <li>Run <code>npm run bddgen:hybrid</code>. For any sentence without a definition it fails and prints a snippet.</li>
+        <li>Implement the step with a page object or API client. Record cart changes in <code>ctx.added</code>; poll in API checks that follow a UI click.</li>
+        <li>Tag it with the next <code>@HYxx</code> and run it with <code>--grep</code>.</li>
+      </ol>
+<pre class="code"><code><span class="c">// steps/cart.steps.ts</span>
+When('I remove product {int} from the cart via the API', async ({ ctx, apiCart }, id: number) =&gt; {
+  expect(await apiCart.remove(id)).toBe('Cart removed');
+  ctx.added = ctx.added.filter((a) =&gt; a.id !== id);   <span class="c">// keeps both layers' checks in step</span>
+});</code></pre>
+    </section>
+
+    <section id="pitfalls">
+      <h2>Pitfalls</h2>
+      <ul class="pitfalls">
+        <li><strong>Using the <code>request</code> fixture in a step.</strong><span>It has its own cookie jar, so a cart filled with it never reaches the browser. Use the API fixtures, which run on <code>page.request</code>.</span></li>
+        <li><strong>Checking the API right after a UI click.</strong><span>"Add to cart" in the UI is an AJAX call. API check steps poll with <code>expect.poll</code>; a new one should too.</span></li>
+        <li><strong>Forgetting <code>ctx.added</code>.</strong><span>A step that changes the cart without recording it makes every later "cart contains" check fail, in both layers.</span></li>
+        <li><strong>Guest cart after login.</strong><span>The site merges a guest cart into the user's cart when the cart page is opened. Open the cart page in the UI before going straight to checkout.</span></li>
+        <li><strong>Running stale tests.</strong><span>Plain <code>npx playwright test</code> runs the last generated files. After editing a feature, run <code>npm run bddgen:hybrid</code>.</span></li>
+        <li><strong>Scenarios listed twice in VS Code.</strong><span>The suite is already in the root config. Don't also enable this folder's own config in the config selector.</span></li>
+      </ul>
+    </section>
+
+    <section id="compare">
+      <h2>vs other frameworks</h2>
+      <p>HY1 written as a spec in the hybrid framework and as a scenario here. Both call the same clients and page objects.</p>
+      <div class="pair">
+        <div>
+          <p class="label">tests/HybridFramework (spec)</p>
+<pre class="code"><code>const [a, b] = (await productsApi
+  .getAllProducts()).body.products;
+await apiCart.add(a.id, 3);
+await apiCart.add(b.id);
+await cartPage.open();
+expect(await cartPage.getRows())
+  .toEqual([ ... ]);</code></pre>
+        </div>
+        <div>
+          <p class="label">tests/HybridCucumberFramework (feature)</p>
+<pre class="code"><code><span class="kw-given">Given</span> I have the list of all products from the API
+<span class="kw-when">When</span> I add the product at position <span class="st">1</span>
+  to the cart <span class="ly-api">via the API</span> with quantity <span class="st">3</span>
+<span class="kw-when">And</span> I add the product at position <span class="st">2</span>
+  to the cart <span class="ly-api">via the API</span>
+<span class="kw-when">And</span> I open the cart page <span class="ly-ui">in the UI</span>
+<span class="kw-then">Then</span> the <span class="ly-ui">UI</span> cart shows exactly the added
+  products with <span class="ly-api">API</span> names, prices and totals</code></pre>
+        </div>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th></th><th>Cucumber (UI)</th><th>API Cucumber</th><th>Hybrid spec</th><th>Hybrid Cucumber</th></tr></thead>
+          <tbody>
+            <tr><td>Browser</td><td>Yes</td><td>No</td><td>Yes</td><td>Yes</td></tr>
+            <tr><td>Readable by non-developers</td><td>Yes</td><td>Yes</td><td>Partly</td><td>Yes, with the layer named in each step</td></tr>
+            <tr><td>Setup</td><td>Through the UI</td><td>Over HTTP</td><td>Over HTTP, into the browser's session</td><td>Same, as "via the API" steps</td></tr>
+            <tr><td>Checks</td><td>What the user sees</td><td>What the server returns</td><td>Both, and that they agree</td><td>Both, and that they agree</td></tr>
+            <tr><td>Extra build step</td><td><code>bddgen</code></td><td><code>bddgen:api</code></td><td>None</td><td><code>bddgen:hybrid</code></td></tr>
+            <tr><td>Best when</td><td>Testers write UI journeys</td><td>Testers write API checks</td><td>Engineers own the tests</td><td>Testers or product owners review cross-layer scenarios</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+</div>
+
+<script>
+(function () {
+  // [keyword, text, file, layer]; layer is what the step's fixtures touch.
+  var steps = [
+    ['Given', 'I use the account from the environment file', 'common', 'setup'],
+    ['Given', 'a registered user exists', 'common', 'setup'],
+    ['Given', 'I have details for a new user', 'common', 'setup'],
+    ['Given', 'I am on the home page', 'common', 'ui'],
+    ['When', 'I open the home page in the UI', 'common', 'ui'],
+    ['When', 'I click {string} in the header', 'common', 'ui'],
+    ['When', 'I log in through the UI', 'common', 'ui'],
+    ['When', 'I log in via the API', 'common', 'api'],
+    ['Then', 'I am logged in as the user', 'common', 'ui'],
+    ['When', 'I log out in the UI', 'common', 'ui'],
+    ['Then', 'the API session is logged out', 'common', 'api'],
+    ['When', 'I add the product at position {int} to the cart via the API', 'cart', 'api'],
+    ['When', 'I add the product at position {int} to the cart via the API with quantity {int}', 'cart', 'api'],
+    ['When', 'I add product {int} to the cart via the API', 'cart', 'api'],
+    ['When', 'I add every product found to the cart via the API', 'cart', 'api'],
+    ['When', 'I add the product at position {int} to the cart in the UI', 'cart', 'ui'],
+    ['When', 'I add product {int} to the cart from its details page in the UI with quantity {int}', 'cart', 'ui'],
+    ['When', 'I remove product {int} from the cart in the UI', 'cart', 'ui'],
+    ['When', 'I open the cart page in the UI', 'cart', 'ui'],
+    ['Then', 'the UI cart shows exactly the added products with API names, prices and totals', 'cart', 'both'],
+    ['Then', 'the UI cart lists the added products', 'cart', 'ui'],
+    ['Then', 'the UI cart is empty', 'cart', 'ui'],
+    ['Then', 'the API cart contains exactly the added products', 'cart', 'api'],
+    ['Then', 'the API cart is empty', 'cart', 'api'],
+    ['Given', 'I have the list of all products from the API', 'products', 'api'],
+    ['When', 'I search the API for {string}', 'products', 'api'],
+    ['When', 'I get the list of all brands from the API', 'products', 'api'],
+    ['When', 'I search for {string} in the UI', 'products', 'ui'],
+    ['When', 'I open the brand {string} in the UI', 'products', 'ui'],
+    ['When', 'I open the {string} category {string} in the UI', 'products', 'ui'],
+    ['Then', 'the UI listing shows exactly the API products in the same order', 'products', 'both'],
+    ['Then', 'the UI listing shows the API products of brand {string}', 'products', 'both'],
+    ['Then', 'the UI listing shows the API products in the {string} category {string}', 'products', 'both'],
+    ['Then', 'the UI brands sidebar lists exactly the API brands', 'products', 'both'],
+    ['Then', 'the UI details pages of the first {int} products show their API name, price, category and brand', 'products', 'both'],
+    ['When', 'I register the user through the UI', 'account', 'ui'],
+    ['When', 'I delete the account in the UI', 'account', 'ui'],
+    ['Then', 'the UI {word} address matches the user', 'account', 'ui'],
+    ['When', "I update the user's account via the API with:", 'account', 'api'],
+    ['Then', 'the API confirms the user exists', 'account', 'api'],
+    ['Then', 'the API reports the user does not exist', 'account', 'api'],
+    ['Then', 'the API user details match what was entered in the UI', 'account', 'both'],
+    ['When', 'I proceed to checkout in the UI', 'checkout', 'ui'],
+    ['Then', 'the UI order review lists the added products with their API prices', 'checkout', 'both'],
+    ['When', 'I place the order in the UI with the comment {string}', 'checkout', 'ui'],
+    ['When', 'I pay with a valid card in the UI', 'checkout', 'ui'],
+    ['Then', 'the UI confirms the order', 'checkout', 'ui'],
+    ['When', 'I download the invoice in the UI', 'checkout', 'ui'],
+    ['Then', 'the invoice total is the cart total calculated from API prices', 'checkout', 'both'],
+    ['When', 'I pay for the order via the API', 'checkout', 'api'],
+    ['Then', 'the API confirms the order', 'checkout', 'api']
+  ].map(function (s) { return { kw: s[0], text: s[1], file: s[2], layer: s[3] }; });
+
+  var LAYERS = { all: 'All', ui: 'UI', api: 'API', both: 'Both', setup: 'Setup' };
+  var FILES = ['all', 'common', 'cart', 'products', 'account', 'checkout'];
+  var state = { layer: 'all', file: 'all' };
+
+  var list = document.getElementById('step-list');
+  var input = document.getElementById('step-search');
+  var count = document.getElementById('step-count');
+
+  function buildFilters(boxId, values, key, label) {
+    var box = document.getElementById(boxId);
+    values.forEach(function (v) {
+      var b = document.createElement('button');
+      b.type = 'button';
+      b.textContent = label(v);
+      b.setAttribute('aria-pressed', v === state[key] ? 'true' : 'false');
+      b.addEventListener('click', function () {
+        state[key] = v;
+        Array.prototype.forEach.call(box.querySelectorAll('button'), function (x) { x.setAttribute('aria-pressed', 'false'); });
+        b.setAttribute('aria-pressed', 'true');
+        render();
+      });
+      box.appendChild(b);
+    });
+  }
+  buildFilters('layer-filters', Object.keys(LAYERS), 'layer', function (v) { return LAYERS[v]; });
+  buildFilters('file-filters', FILES, 'file', function (v) { return v === 'all' ? 'All' : v + '.steps.ts'; });
+
+  function esc(s) { return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
+  function fmt(t) { return esc(t).replace(/\{(string|int|word|float)\}/g, '<span class="p">{$1}</span>'); }
+
+  function render() {
+    var q = input.value.trim().toLowerCase();
+    var shown = steps.filter(function (s) {
+      return (state.layer === 'all' || s.layer === state.layer) &&
+        (state.file === 'all' || s.file === state.file) &&
+        (!q || (s.kw + ' ' + s.text + ' ' + s.file).toLowerCase().indexOf(q) !== -1);
+    });
+    list.innerHTML = shown.length ? shown.map(function (s) {
+      return '<li><span class="k ' + s.kw + '">' + s.kw + '</span><span class="t">' + fmt(s.text) + '</span>' +
+        '<span class="chip ' + s.layer + '">' + LAYERS[s.layer] + '</span><span class="f">' + s.file + '</span></li>';
+    }).join('') : '<li class="cat-empty">No step matches. Write a new one and run npm run bddgen:hybrid for a snippet.</li>';
+    count.textContent = shown.length + ' of ' + steps.length + ' steps';
+  }
+  input.addEventListener('input', render);
+  render();
+})();
+</script>
+
+<!-- Draws the diagrams when the file is opened outside claude.ai. -->
+<script type="module">
+  import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11.4.1/dist/mermaid.esm.min.mjs';
+  const dark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+  mermaid.initialize({ startOnLoad: true, securityLevel: 'strict', theme: dark ? 'dark' : 'neutral' });
+</script>
+</body>
+</html>
