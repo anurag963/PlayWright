@@ -11,7 +11,12 @@ node_modules/
 .env
 /allure-results/
 /allure-report/
+/allure-results-api/
+/allure-report-api/
 /allure-results-cucumber/
 /allure-report-cucumber/
 /cucumber-report/
+/cucumber-report-api/
+/allure-results-api-cucumber/
+/allure-report-api-cucumber/
 .features-gen/
